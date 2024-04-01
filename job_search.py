@@ -39,8 +39,18 @@ class JobSearch(Scraper):
         job_div = self.wait_for_element_to_load(name="job-card-list__title", base=base_element)
         job_title = job_div.text.strip()
         linkedin_url = job_div.get_attribute("href")
-        company = base_element.find_element(By.CLASS_NAME, "artdeco-entity-lockup__subtitle").text
-
+        try:
+            company = base_element.find_element(By.CLASS_NAME, "artdeco-entity-lockup__subtitle").text
+        except Exception as e:
+            company = None
+        try:
+            number_of_applicants = base_element.find_element(By.XPATH, "//*[@id=\"main\"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[2]/div/span[5]").text
+        except Exception as e:
+            number_of_applicants = None
+        try:
+            post_date = base_element.find_element(By.XPATH, "//*[@id=\"main\"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[2]/div/span[3]").text
+        except Exception as e:
+            post_date = None
         job_description = None
 
 
@@ -52,7 +62,7 @@ class JobSearch(Scraper):
         job_description = job_description_element.text
 
         location = base_element.find_element(By.CLASS_NAME, "job-card-container__metadata-wrapper").text
-        job = Job(linkedin_url=linkedin_url, job_title=job_title, company=company,job_description=job_description, location=location, scrape=False, driver=self.driver)
+        job = Job(linkedin_url=linkedin_url, job_title=job_title, company=company,posted_date=post_date,applicant_count=number_of_applicants,job_description=job_description, location=location, scrape=False, driver=self.driver)
         return job
 
 
@@ -81,22 +91,22 @@ class JobSearch(Scraper):
         self.driver.get(url)
         self.scroll_to_bottom()
         self.focus()
-        sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+        # sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
 
         job_listing_class_name = "jobs-search-results-list"
         job_listing = self.wait_for_element_to_load(name=job_listing_class_name)
 
-        self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.3)
-        self.focus()
-        sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
-
-        self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.6)
-        self.focus()
-        sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
-
-        self.scroll_class_name_element_to_page_percent(job_listing_class_name, 1)
-        self.focus()
-        sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+        # self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.3)
+        # self.focus()
+        # sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+        #
+        # self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.6)
+        # self.focus()
+        # sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+        #
+        # self.scroll_class_name_element_to_page_percent(job_listing_class_name, 1)
+        # self.focus()
+        # sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
 
         def wait_for_element(xpath):
             return WebDriverWait(self.driver, 10).until(
@@ -105,20 +115,42 @@ class JobSearch(Scraper):
 
 
         job_results = []
-        for page_number in range(1, 101):
+        for page_number in range(2, 101):
             try:
+                number_of_results_xpath ="//*[@id=\"main\"]/div/div[2]/div[1]/header/div[1]/small/div"
+                tempo = self.driver.find_elements(By.XPATH, number_of_results_xpath)
                 xpath = f".//button[@aria-label='Page {page_number}']"
                 if self.driver.find_elements(By.XPATH, xpath):
                     button = wait_for_element(xpath)
                     button.click()
 
-                    for job_card in self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing):
+                    self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.3)
+                    self.focus()
+                    sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+
+                    self.scroll_class_name_element_to_page_percent(job_listing_class_name, 0.6)
+                    self.focus()
+                    sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+
+                    self.scroll_class_name_element_to_page_percent(job_listing_class_name, 1)
+                    self.focus()
+                    sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
+
+
+
+
+                    job_cards = self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
+                    # job_cards.scr
+                    for job_card in job_cards:
                         job_card.click()
-                        self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
+                        # self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
                         job = self.scrape_job_card(job_card)
                         job_results.append(job)
+                        # sleep(1)
+
             except Exception as e:
                 break
+
 
         return job_results
 

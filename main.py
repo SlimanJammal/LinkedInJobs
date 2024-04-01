@@ -2,8 +2,8 @@ import job_search, actions
 from selenium import webdriver
 
 driver = webdriver.Chrome()
-email = "rutjub@makobj.store"
-password = "qwerty1234"
+email = "naulub@makobj.store"
+password = "Fishpassword"
 actions.login(driver, email, password)
 
 job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)

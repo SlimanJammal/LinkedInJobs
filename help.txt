@@ -1,0 +1,17 @@
+xpath to when job was posted:
+//*[@id="main"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[2]/div/span[3]
+
+
+xpath to number of applicants:
+//*[@id="main"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[2]/div/span[5]
+
+
+xpath to skills:
+//*[@id="main"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[3]/ul/li[2]/button/a
+
+
+xpath to is full-time:
+//*[@id="main"]/div/div[2]/div[2]/div/div[2]/div/div[1]/div/div[1]/div/div[1]/div[1]/div[3]/ul/li[1]/span/span[2]
+
+
+xpath to
