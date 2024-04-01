@@ -4,7 +4,7 @@ from selenium import webdriver
 driver = webdriver.Chrome()
 email = "rutjub@makobj.store"
 password = "qwerty1234"
-actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
+actions.login(driver, email, password)
 
 job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
 # job_search contains jobs from your logged in front page:

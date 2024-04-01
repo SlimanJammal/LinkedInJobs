@@ -98,15 +98,28 @@ class JobSearch(Scraper):
         self.focus()
         sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
 
+        def wait_for_element(xpath):
+            return WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, xpath))
+            )
+
+
         job_results = []
-        for page_number in range(1, 4):
-            button = job_listing.find_element(By.XPATH, f".//button[@aria-label='Page {page_number}']")
-            button.click()
-            for job_card in self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing):
-                job_card.click()
-                self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
-                job = self.scrape_job_card(job_card)
-                job_results.append(job)
+        for page_number in range(1, 101):
+            try:
+                xpath = f".//button[@aria-label='Page {page_number}']"
+                if self.driver.find_elements(By.XPATH, xpath):
+                    button = wait_for_element(xpath)
+                    button.click()
+
+                    for job_card in self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing):
+                        job_card.click()
+                        self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
+                        job = self.scrape_job_card(job_card)
+                        job_results.append(job)
+            except Exception as e:
+                break
+
         return job_results
 
 
