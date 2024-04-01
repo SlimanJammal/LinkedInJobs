@@ -1,16 +1,17 @@
-# This is a sample Python script.
+import job_search, actions
+from selenium import webdriver
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+driver = webdriver.Chrome()
+email = "rutjub@makobj.store"
+password = "qwerty1234"
+actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
 
+job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+# job_search contains jobs from your logged in front page:
+# - job_search.recommended_jobs
+# - job_search.still_hiring
+# - job_search.more_jobs
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+job_listings = job_search.search("Machine Learning Engineer") # returns the list of `Job` from the first page
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(job_listings)
