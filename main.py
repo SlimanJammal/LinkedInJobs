@@ -3,7 +3,7 @@ import os
 import job_search, actions
 from selenium import webdriver
 import csv
-
+from openai import OpenAI
 
 # input : a list of jobs , and optionally filename for the csv file
 #output : a csv file with all jobs data provided
@@ -23,7 +23,7 @@ email = "ziicug@makobj.store"
 password = "Fishpassword"
 actions.login(driver, email, password)
 
-from openai import OpenAI
+
 
 client = OpenAI()
 
