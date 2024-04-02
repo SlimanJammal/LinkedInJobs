@@ -1,29 +1,24 @@
-import random
-
-import pandas as pd
-from selenium import webdriver
 from time import sleep
 import time
 import random
-
-from selenium.webdriver.common.by import By
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def scroll_to_bottom():
+def scroll_to_bottom(driver, wait):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "infinite-scroller__show-more-button")))
 
+
 # Function to click the "See more jobs" button
-def click_see_more_button():
-    see_more_button = driver.find_element(By.CLASS_NAME,"infinite-scroller__show-more-button")
+def click_see_more_button(driver):
+    see_more_button = driver.find_element(By.CLASS_NAME, "infinite-scroller__show-more-button")
     see_more_button.click()
 
-def scroll_slightly_up():
+
+def scroll_slightly_up(driver):
     driver.execute_script("window.scrollBy(0, -window.innerHeight / 4);")
 
 
@@ -36,9 +31,10 @@ def reload_page_if_needed(driver, original_url):
         print("Reloading page...")
         driver.get(original_url)
 
-    return current_url == original_url , driver
+    return current_url == original_url, driver
 
-def no_login_scraper(job_title,location):
+
+def no_login_scraper(job_title, location):
     # driver = webdriver.Chrome()
     driver = webdriver.Chrome()
 
@@ -61,14 +57,14 @@ def no_login_scraper(job_title,location):
     scroll_threshold = 1
     while True:
         try:
-            scroll_to_bottom()
-            click_see_more_button()
+            scroll_to_bottom(driver, wait)
+            click_see_more_button(driver)
         except:
             if scroll_threshold == 0:
                 break
             delay = random.uniform(2, 3)
-            scroll_slightly_up()
-            time.sleep(delay+1)
+            scroll_slightly_up(driver)
+            time.sleep(delay + 1)
             scroll_threshold -= 1
             # try:
             #     if driver.find_element(By.CLASS_NAME,"inline-notification__text"):
@@ -77,19 +73,15 @@ def no_login_scraper(job_title,location):
 
             # except:
 
-
-
-
-
     parent_ul = driver.find_element(By.CLASS_NAME, "jobs-search__results-list")
 
     job_cards = parent_ul.find_elements(By.CLASS_NAME, "base-card")
 
     jobs_data = []
 
-    for i,job_card in enumerate(job_cards):
+    for i, job_card in enumerate(job_cards):
         if i == 10:
-            break #todo remove temp for testing
+            break  # todo remove temp for testing
 
         job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
         company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
@@ -104,12 +96,12 @@ def no_login_scraper(job_title,location):
             time.sleep(1)
         except:
             if (i - 2) > 0:
-                job_cards[i-1].click()
+                job_cards[i - 1].click()
                 sleep(2)
-            if(i-2 )> 0:
+            if (i - 2) > 0:
                 job_cards[i - 2].click()
                 delay = random.uniform(2, 3)
-                scroll_slightly_up()
+                scroll_slightly_up(driver)
                 time.sleep(delay + 1)
             job_card.click()
             sleep(2)
@@ -125,8 +117,7 @@ def no_login_scraper(job_title,location):
 
         sleep(1)
 
-
-        try:# Get the job description text
+        try:  # Get the job description text
             job_description_element = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "show-more-less-html__markup"))
             )
@@ -145,8 +136,6 @@ def no_login_scraper(job_title,location):
         except Exception as e:
             print("An error occurred:", e)
             continue
-
-
 
     while True:
         pass
