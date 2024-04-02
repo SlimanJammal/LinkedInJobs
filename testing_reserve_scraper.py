@@ -19,7 +19,7 @@ def click_see_more_button(driver):
 
 
 def scroll_slightly_up(driver):
-    driver.execute_script("window.scrollBy(0, -window.innerHeight / 4);")
+    driver.execute_script("window.scrollBy(0, -window.innerHeight / 2);")
 
 
 def reload_page_if_needed(driver, original_url):
@@ -34,7 +34,7 @@ def reload_page_if_needed(driver, original_url):
     return current_url == original_url, driver
 
 
-def no_login_scraper(job_title, location):
+def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=20):
     # driver = webdriver.Chrome()
     driver = webdriver.Chrome()
 
@@ -43,7 +43,7 @@ def no_login_scraper(job_title, location):
     sleep(5)
     wait = WebDriverWait(driver, 10)
 
-    reload_threshold = 4
+    reload_threshold = reload_threshold
     while True:
         status, driver = reload_page_if_needed(driver, original_url)
         if status:
@@ -54,7 +54,7 @@ def no_login_scraper(job_title, location):
             reload_threshold -= 1
 
     driver.maximize_window()
-    scroll_threshold = 1
+    scroll_threshold = scroll_threshold
     while True:
         try:
             scroll_to_bottom(driver, wait)
@@ -80,9 +80,6 @@ def no_login_scraper(job_title, location):
     jobs_data = []
 
     for i, job_card in enumerate(job_cards):
-        if i == 10:
-            break  # todo remove temp for testing
-
         job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
         company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
         location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
@@ -113,7 +110,7 @@ def no_login_scraper(job_title, location):
                 time.sleep(1)
             except:
                 print("job failed to read")
-                continue
+                # continue
 
         sleep(1)
 
@@ -137,5 +134,9 @@ def no_login_scraper(job_title, location):
             print("An error occurred:", e)
             continue
 
-    while True:
-        pass
+    return jobs_data
+
+
+
+# jobs = no_login_scraper("water", "haifa")
+
