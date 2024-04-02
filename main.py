@@ -1,9 +1,66 @@
 import os
+import pickle
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 import job_search, actions
 from selenium import webdriver
 import csv
 from openai import OpenAI
+
+
+
+def create_browser_session():
+    driver = webdriver.Chrome()
+    # Implement your specific login logic here (similar to login_to_account above)
+    # ...
+    email = "ziicug@makobj.store"
+    password = "Fishpassword"
+    actions.login(driver, email, password)
+    return driver
+
+def save_session(driver, cookies_file):
+    cookies = driver.get_cookies()
+    with open(cookies_file, 'wb') as f:
+        pickle.dump(cookies, f)
+
+def load_session(driver,cookies_file):
+    # driver = webdriver.Chrome()
+    driver.get("https://www.linkedin.com/feed/")
+    with open(cookies_file, 'rb') as f:
+        cookies = pickle.load(f)
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+    return driver
+
+def main():
+    try:
+        driver = webdriver.Chrome()
+        driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
+        driver.get("https://www.linkedin.com/")
+        print("Loaded existing session")
+    except (FileNotFoundError,EOFError,TypeError):
+        driver = create_browser_session()
+        save_session(driver, "saved_session.pkl")  # Save for future use
+        print("Created and saved new session")
+
+
+    job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+    job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+    write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
+    driver.quit()  # Close the browser session
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
 
 # input : a list of jobs , and optionally filename for the csv file
 #output : a csv file with all jobs data provided
