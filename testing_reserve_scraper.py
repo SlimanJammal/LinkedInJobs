@@ -111,17 +111,7 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
 
         job_card.click()
 
-        # try:
-        #     number_of_applicants = job_card.find_element(By.XPATH,
-        #                                                      "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span[2]").text
-        # except Exception as e:"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/figure/figcaption"
-        #     number_of_applicants = None
-        # try:
-        #     post_date = job_card.find_element(By.XPATH,
-        #                                           "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
-        #
-        # except Exception as e:
-        #     post_date = None
+
 
         try:
             button = WebDriverWait(driver, 10).until(
@@ -155,18 +145,25 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
                 # continue
 
         sleep(1)
-        try:
-            number_of_applicants = job_card.find_element(By.CLASS_NAME, "num-applicants__caption")
-        except Exception as e:
-            print("An error occurred:", e)
-            number_of_applicants = "Not specified"
-
 
         try:
-            post_date = job_card.find_element(By.CLASS_NAME, "posted-time-ago__caption")
+            number_of_applicants = job_card.find_element(By.XPATH,
+                                                             "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span[2]").text
         except Exception as e:
-            print("An error occurred:", e)
-            post_date = "Not specified"
+            try:
+                number_of_applicants = job_card.find_element(By.XPATH,"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/figure/figcaption").text
+            except Exception as e:
+                number_of_applicants = None
+        try:
+            post_date = job_card.find_element(By.XPATH,
+                                                  "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+
+        except Exception as e:
+            try:
+                post_date = job_card.find_element(By.XPATH,"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+            except Exception as e:
+                post_date = None
+
 
         try:  # Get the job description text
             job_description_element = WebDriverWait(driver, 10).until(
@@ -181,7 +178,7 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
                     "Location": location,
                     "Job Description": job_description,
                     "Job URL": job_url,
-                    "Applicants Numbers": number_of_applicants,
+                    "Applicants Number": number_of_applicants,
                     "post_date": post_date
                 }
 
