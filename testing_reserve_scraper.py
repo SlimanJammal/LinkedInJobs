@@ -55,16 +55,8 @@ def find_job_id(driver):
     return job_posting_number
 
 
-def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=20):
-    # driver = webdriver.Chrome()
-    driver = webdriver.Chrome()
+def reload_check(driver, reload_threshold, original_url):
 
-    original_url = f"https://il.linkedin.com/jobs/{job_title}-jobs-{location}?trk=homepage-jobseeker_suggested-search&position=1&pageNum=0"
-    driver.get(original_url)
-    sleep(5)
-    wait = WebDriverWait(driver, 10)
-
-    reload_threshold = reload_threshold
     while True:
         status, driver = reload_page_if_needed(driver, original_url)
         if status:
@@ -73,8 +65,10 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
             exit()
         else:
             reload_threshold -= 1
+    return
 
-    driver.maximize_window()
+
+def scroll_to_view_all(driver, scroll_threshold, wait):
     scroll_threshold = scroll_threshold
     while True:
         try:
@@ -92,27 +86,28 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
             #         print("You've viewed all jobs for")
             #         break
 
-            # except:
 
-    parent_ul = driver.find_element(By.CLASS_NAME, "jobs-search__results-list")
+def click_job_card(driver, job_cards, job_card):
+    try:
+        button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
+        )
+        button.click()
+        time.sleep(1)
+    except:
 
-    job_cards = parent_ul.find_elements(By.CLASS_NAME, "base-card")
+        random_index = random.randint(0, len(job_cards) - 1)
+        job_cards[random_index].click()
+        sleep(2)
 
-    jobs_data = []
-
-    for i, job_card in enumerate(job_cards):
-        if i == 2:
-            break #todo remove. for testing only !!!!!
-
-        job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
-        company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
-        location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
-        job_url = job_card.find_element(By.CSS_SELECTOR,"a.base-card__full-link").get_attribute("href")
+        random_index = random.randint(0, len(job_cards) - 1)
+        job_cards[random_index].click()
+        delay = random.uniform(2, 3)
+        scroll_slightly_up(driver)
+        time.sleep(delay + 1)
 
         job_card.click()
-
-
-
+        sleep(2)
         try:
             button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
@@ -120,73 +115,121 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
             button.click()
             time.sleep(1)
         except:
-
-            random_index = random.randint(0, len(job_cards) - 1)
-            job_cards[random_index].click()
-            sleep(2)
-
-            random_index = random.randint(0, len(job_cards) - 1)
-            job_cards[random_index].click()
-            delay = random.uniform(2, 3)
-            scroll_slightly_up(driver)
-            time.sleep(delay + 1)
+            print("job failed to read")
+            # continue
+    pass
 
 
-            job_card.click()
-            sleep(2)
-            try:
-                button = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
-                )
-                button.click()
-                time.sleep(1)
-            except:
-                print("job failed to read")
-                # continue
+def get_applicants_num(job_card):
+    try:
+        number_of_applicants = job_card.find_element(By.XPATH,
+                                                     "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span[2]").text
+    except Exception as e:
+        try:
+            number_of_applicants = job_card.find_element(By.XPATH,
+                                                         "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/figure/figcaption").text
+        except Exception as e:
+            number_of_applicants = None
+
+    return number_of_applicants
+
+
+def get_post_date(job_card):
+    try:
+        post_date = job_card.find_element(By.XPATH,
+                                          "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+
+    except Exception as e:
+        try:
+            post_date = job_card.find_element(By.XPATH,
+                                              "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+        except Exception as e:
+            post_date = None
+    return post_date
+
+
+def get_job_description(driver, job_card):
+    try:
+        job_description_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "show-more-less-html__markup"))
+        )
+        job_description = job_description_element.text
+    except Exception as e:
+        job_description = None
+
+    return job_description
+
+
+def build_job_data(job_title, company_name, location, job_url, job_description, post_date, number_of_applicants):
+    job_data = None
+    try:
+        if job_description:
+            job_data = {
+                "Job Title": job_title,
+                "Company Name": company_name,
+                "Location": location,
+                "Job Description": job_description,
+                "Job URL": job_url,
+                "Applicants Number": number_of_applicants,
+                "post_date": post_date
+            }
+
+
+            sleep(0.2)
+    except Exception as e:
+        print("An error occurred:", e)
+
+    return job_data
+
+
+
+def scrape_jobs(driver):
+    parent_ul = driver.find_element(By.CLASS_NAME, "jobs-search__results-list")
+
+    job_cards = parent_ul.find_elements(By.CLASS_NAME, "base-card")
+
+    jobs_data = []
+
+    for i, job_card in enumerate(job_cards):
+        job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
+        company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
+        location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
+        job_url = job_card.find_element(By.CSS_SELECTOR, "a.base-card__full-link").get_attribute("href")
+
+        job_card.click()
+
+        click_job_card(driver, job_cards, job_card)
 
         sleep(1)
 
-        try:
-            number_of_applicants = job_card.find_element(By.XPATH,
-                                                             "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span[2]").text
-        except Exception as e:
-            try:
-                number_of_applicants = job_card.find_element(By.XPATH,"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/figure/figcaption").text
-            except Exception as e:
-                number_of_applicants = None
-        try:
-            post_date = job_card.find_element(By.XPATH,
-                                                  "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+        number_of_applicants = get_applicants_num(job_card)
+        post_date = get_post_date(job_card)
+        job_description = get_job_description(driver, job_card)
+        job = None
+        if job_description:
+            job = build_job_data(job_title, company_name, location, job_url, job_description, post_date, number_of_applicants)
 
-        except Exception as e:
-            try:
-                post_date = job_card.find_element(By.XPATH,"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
-            except Exception as e:
-                post_date = None
+        if job is not None:
+            jobs_data.append(job)
+
+    return jobs_data
 
 
-        try:  # Get the job description text
-            job_description_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "show-more-less-html__markup"))
-            )
-            job_description = job_description_element.text
+def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=20):
+    # driver = webdriver.Chrome()
+    driver = webdriver.Chrome()
 
-            if job_description:
-                job_data = {
-                    "Job Title": job_title,
-                    "Company Name": company_name,
-                    "Location": location,
-                    "Job Description": job_description,
-                    "Job URL": job_url,
-                    "Applicants Number": number_of_applicants,
-                    "post_date": post_date
-                }
+    original_url = f"https://il.linkedin.com/jobs/{job_title}-jobs-{location}?trk=homepage-jobseeker_suggested-search&position=1&pageNum=0"
+    driver.get(original_url)
+    sleep(5)
+    wait = WebDriverWait(driver, 10)
 
-                jobs_data.append(job_data)
-                sleep(0.2)
-        except Exception as e:
-            print("An error occurred:", e)
-            continue
+    reload_check(driver, reload_threshold, original_url)
+    driver.maximize_window()
+    scroll_to_view_all(driver, scroll_threshold ,wait)
+
+
+    jobs_data = scrape_jobs(driver)
 
     return jobs_data
 
