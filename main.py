@@ -85,10 +85,10 @@ actions.login(driver, email, password)
 # client = OpenAI()
 
 job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-job_listings = job_search.search("software engineer") # returns the list of `Job` from the first page
+job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
 
 # Example usage:
-write_jobs_to_csv(job_listings,"software_engineer_jobs.csv")  # Write to jobs.csv
+write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
 
 print(len(job_listings))
 # completion = client.chat.completions.create(

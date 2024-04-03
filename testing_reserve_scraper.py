@@ -34,6 +34,27 @@ def reload_page_if_needed(driver, original_url):
     return current_url == original_url, driver
 
 
+def find_job_id(driver):
+    job_posting_number = 0
+    element = driver.find_element(By.CLASS_NAME, "semaphore__toggle")
+
+    # Extract the href attribute containing the URL
+    href = element.get_attribute("href")
+
+    # Split the URL by delimiter separating jobPosting and the number
+    parts = href.split("jobPosting:")
+
+    # Check if the split resulted in more than one part
+    if len(parts) > 1:
+        # Extract the number (assuming it's the second part)
+        job_posting_number = parts[1]
+        print(job_posting_number)
+    else:
+        print("Number not found in the URL")
+
+    return job_posting_number
+
+
 def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=20):
     # driver = webdriver.Chrome()
     driver = webdriver.Chrome()
@@ -80,11 +101,28 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
     jobs_data = []
 
     for i, job_card in enumerate(job_cards):
+        if i == 2:
+            break #todo remove. for testing only !!!!!
+
         job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
         company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
         location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
+        job_url = job_card.find_element(By.CSS_SELECTOR,"a.base-card__full-link").get_attribute("href")
 
         job_card.click()
+
+        # try:
+        #     number_of_applicants = job_card.find_element(By.XPATH,
+        #                                                      "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span[2]").text
+        # except Exception as e:"/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/figure/figcaption"
+        #     number_of_applicants = None
+        # try:
+        #     post_date = job_card.find_element(By.XPATH,
+        #                                           "/html/body/div[1]/div/section/div[2]/section/div/div[1]/div/h4/div[2]/span").text
+        #
+        # except Exception as e:
+        #     post_date = None
+
         try:
             button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
@@ -92,14 +130,18 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
             button.click()
             time.sleep(1)
         except:
-            if (i - 2) > 0:
-                job_cards[i - 1].click()
-                sleep(2)
-            if (i - 2) > 0:
-                job_cards[i - 2].click()
-                delay = random.uniform(2, 3)
-                scroll_slightly_up(driver)
-                time.sleep(delay + 1)
+
+            random_index = random.randint(0, len(job_cards) - 1)
+            job_cards[random_index].click()
+            sleep(2)
+
+            random_index = random.randint(0, len(job_cards) - 1)
+            job_cards[random_index].click()
+            delay = random.uniform(2, 3)
+            scroll_slightly_up(driver)
+            time.sleep(delay + 1)
+
+
             job_card.click()
             sleep(2)
             try:
@@ -113,6 +155,18 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
                 # continue
 
         sleep(1)
+        try:
+            number_of_applicants = job_card.find_element(By.CLASS_NAME, "num-applicants__caption")
+        except Exception as e:
+            print("An error occurred:", e)
+            number_of_applicants = "Not specified"
+
+
+        try:
+            post_date = job_card.find_element(By.CLASS_NAME, "posted-time-ago__caption")
+        except Exception as e:
+            print("An error occurred:", e)
+            post_date = "Not specified"
 
         try:  # Get the job description text
             job_description_element = WebDriverWait(driver, 10).until(
@@ -125,7 +179,10 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
                     "Job Title": job_title,
                     "Company Name": company_name,
                     "Location": location,
-                    "Job Description": job_description
+                    "Job Description": job_description,
+                    "Job URL": job_url,
+                    "Applicants Numbers": number_of_applicants,
+                    "post_date": post_date
                 }
 
                 jobs_data.append(job_data)
@@ -138,5 +195,5 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
 
 
 
-# jobs = no_login_scraper("water", "haifa")
+jobs = no_login_scraper("water", "haifa",4,1)
 
