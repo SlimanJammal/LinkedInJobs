@@ -93,27 +93,27 @@ def click_job_card(driver, job_cards, job_card):
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
         )
         button.click()
-        time.sleep(1)
+        time.sleep(0.1)
     except:
 
         random_index = random.randint(0, len(job_cards) - 1)
         job_cards[random_index].click()
-        sleep(2)
+        sleep(0.3)
 
         random_index = random.randint(0, len(job_cards) - 1)
         job_cards[random_index].click()
-        delay = random.uniform(2, 3)
+        delay = random.uniform(0, 1)
         scroll_slightly_up(driver)
-        time.sleep(delay + 1)
+        time.sleep(delay )
 
         job_card.click()
-        sleep(2)
+        sleep(0.5)
         try:
             button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button[aria-label='i18n_show_more']"))
             )
             button.click()
-            time.sleep(1)
+            time.sleep(0.5)
         except:
             print("job failed to read")
             # continue
@@ -184,33 +184,37 @@ def build_job_data(job_title, company_name, location, job_url, job_description, 
 
 
 def scrape_jobs(driver):
-    parent_ul = driver.find_element(By.CLASS_NAME, "jobs-search__results-list")
-
-    job_cards = parent_ul.find_elements(By.CLASS_NAME, "base-card")
-
     jobs_data = []
+    try:
+        parent_ul = driver.find_element(By.CLASS_NAME, "jobs-search__results-list")
 
-    for i, job_card in enumerate(job_cards):
-        job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
-        company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
-        location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
-        job_url = job_card.find_element(By.CSS_SELECTOR, "a.base-card__full-link").get_attribute("href")
+        job_cards = parent_ul.find_elements(By.CLASS_NAME, "base-card")
 
-        job_card.click()
 
-        click_job_card(driver, job_cards, job_card)
 
-        sleep(1)
+        for i, job_card in enumerate(job_cards):
+            job_title = job_card.find_element(By.CLASS_NAME, "base-search-card__title").text
+            company_name = job_card.find_element(By.CLASS_NAME, "base-search-card__subtitle").text
+            location = job_card.find_element(By.CLASS_NAME, "job-search-card__location").text
+            job_url = job_card.find_element(By.CSS_SELECTOR, "a.base-card__full-link").get_attribute("href")
 
-        number_of_applicants = get_applicants_num(job_card)
-        post_date = get_post_date(job_card)
-        job_description = get_job_description(driver, job_card)
-        job = None
-        if job_description:
-            job = build_job_data(job_title, company_name, location, job_url, job_description, post_date, number_of_applicants)
+            job_card.click()
 
-        if job is not None:
-            jobs_data.append(job)
+            click_job_card(driver, job_cards, job_card)
+
+            sleep(1)
+
+            number_of_applicants = get_applicants_num(job_card)
+            post_date = get_post_date(job_card)
+            job_description = get_job_description(driver, job_card)
+            job = None
+            if job_description:
+                job = build_job_data(job_title, company_name, location, job_url, job_description, post_date, number_of_applicants)
+
+            if job is not None:
+                jobs_data.append(job)
+    except Exception as e:
+        print(e)
 
     return jobs_data
 
@@ -226,7 +230,7 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
 
     reload_check(driver, reload_threshold, original_url)
     driver.maximize_window()
-    scroll_to_view_all(driver, scroll_threshold ,wait)
+    scroll_to_view_all(driver, scroll_threshold, wait)
 
 
     jobs_data = scrape_jobs(driver)
@@ -235,5 +239,5 @@ def no_login_scraper(job_title, location, reload_threshold=4, scroll_threshold=2
 
 
 
-jobs = no_login_scraper("water", "haifa",4,1)
+jobs = no_login_scraper("software", "haifa",4,20)
 
