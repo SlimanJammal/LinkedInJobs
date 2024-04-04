@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import mysql.connector
+import credintials
 from openai import OpenAI
 def connect_to_db():
     try:
@@ -9,15 +10,10 @@ def connect_to_db():
     except FileNotFoundError:
         print("Error: db_pass.txt not found")
 
-    return mysql.connector.connect(host="localhost", user="root", password=password, database="initDB")
+    return mysql.connector.connect(host=credintials.db_host, user=credintials.db_user, password=credintials.db_password, database=credintials.db_name)
 def create_db():
-    try:
-        with open('db_pass.txt', 'r') as file:
-            password = file.readline().strip()
-    except FileNotFoundError:
-        print("Error: db_pass.txt not found")
 
-    db = mysql.connector.connect(host="localhost", user="root", password=password)
+    db = mysql.connector.connect(host=credintials.db_host, user=credintials.db_user, password=credintials.db_password)
     cursor = db.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS initdb")
     db = connect_to_db()

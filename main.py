@@ -8,6 +8,7 @@ import database_functions
 import job_search, actions
 from selenium import webdriver
 import csv
+import credintials
 from openai import OpenAI
 def extract_job_data(jobs):
 
@@ -41,8 +42,7 @@ def create_browser_session():
     driver = webdriver.Chrome()
     # Implement your specific login logic here (similar to login_to_account above)
     # ...
-    email, password = get_email_and_password("login.txt")
-    actions.login(driver, email, password)
+    actions.login(driver, credintials.linkedin_username, credintials.linkedin_password)
     return driver
 
 def save_session(driver, cookies_file):
@@ -86,20 +86,20 @@ def main():
     driver.quit()  # Close the browser session
 
 
-def get_email_and_password(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-            if len(lines) >= 2:
-                email = lines[0].strip()
-                password = lines[1].strip()
-                return email, password
-            else:
-                print("Error: File does not contain both email and password.")
-                return None, None
-    except FileNotFoundError:
-        print("Error: File not found.")
-        return None, None
+# def get_email_and_password(file_path):
+#     try:
+#         with open(file_path, 'r') as file:
+#             lines = file.readlines()
+#             if len(lines) >= 2:
+#                 email = lines[0].strip()
+#                 password = lines[1].strip()
+#                 return email, password
+#             else:
+#                 print("Error: File does not contain both email and password.")
+#                 return None, None
+#     except FileNotFoundError:
+#         print("Error: File not found.")
+#         return None, None
 
 if __name__ == "__main__":
     main()
