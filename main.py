@@ -3,7 +3,8 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from database_functions import add_data_to_db
+from database_functions import orig_add_data_to_db
+import database_functions
 import job_search, actions
 from selenium import webdriver
 import csv
@@ -40,8 +41,7 @@ def create_browser_session():
     driver = webdriver.Chrome()
     # Implement your specific login logic here (similar to login_to_account above)
     # ...
-    email = "rutjub@makobj.store"
-    password = "qwerty1234"
+    email, password = get_email_and_password("login.txt")
     actions.login(driver, email, password)
     return driver
 
@@ -74,9 +74,32 @@ def main():
     job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
     job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
     # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
+    database_functions.create_db()
     data = extract_job_data(job_listings)
-    add_data_to_db(data)
+    orig_add_data_to_db(data)
+    database_functions.create_processed_jobs_table()
+    temp_data = database_functions.fetch_jobs_data()
+    processed_data = database_functions.generate_job_fields(temp_data)
+    database_functions.insert_processed_fields(processed_data)
+
+    print("Finished")
     driver.quit()  # Close the browser session
+
+
+def get_email_and_password(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            if len(lines) >= 2:
+                email = lines[0].strip()
+                password = lines[1].strip()
+                return email, password
+            else:
+                print("Error: File does not contain both email and password.")
+                return None, None
+    except FileNotFoundError:
+        print("Error: File not found.")
+        return None, None
 
 if __name__ == "__main__":
     main()
@@ -93,28 +116,18 @@ if __name__ == "__main__":
 #output : a csv file with all jobs data provided
 
 driver = webdriver.Chrome()
-email = "rutjub@makobj.store"
-password = "qwerty1234"
+email, password = get_email_and_password("login.txt")
 actions.login(driver, email, password)
 
 
 
-# client = OpenAI()
 
 job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
 job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
 
-# Example usage:
-write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
 
-print(len(job_listings))
-# completion = client.chat.completions.create(
-#     model="gpt-3.5-turbo",
-#     messages=[
-#         {"role": "system",
-#          "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."},
-#         {"role": "user", "content": "Compose a poem that explains the concept of recursion in programming."}
-#     ]
-# )
-#
-# print(completion.choices[0].message)
+
+# write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
+
+# print(len(job_listings))
+
