@@ -1,4 +1,5 @@
 import os
+import random
 from typing import List
 from time import sleep
 import urllib.parse
@@ -62,6 +63,20 @@ class JobSearch(Scraper):
         job_description = job_description_element.text
 
         location = base_element.find_element(By.CLASS_NAME, "job-card-container__metadata-wrapper").text
+        if linkedin_url is None:
+            linkedin_url = "empty"
+        if job_title is None:
+            job_title = "empty"
+        if company is None:
+            company = "empty"
+        if post_date is None:
+            post_date = "empty"
+        if number_of_applicants is None:
+            number_of_applicants = "empty"
+        if job_description is None:
+            job_description = "empty"
+        if location is None:
+            location = "empty"
         job = Job(linkedin_url=linkedin_url, job_title=job_title, company=company,posted_date=post_date,applicant_count=number_of_applicants,job_description=job_description, location=location, scrape=False, driver=self.driver)
         return job
 
@@ -143,8 +158,15 @@ class JobSearch(Scraper):
                     # job_cards.scr
                     for job_card in job_cards:
                         job_card.click()
+                        sleep(0.3)
                         # self.wait_for_all_elements_to_load(name="job-card-list", base=job_listing)
                         job = self.scrape_job_card(job_card)
+                        if job.job_description == "About the job":
+                            random_index = random.randint(0, len(job_cards) - 1)
+                            job_cards[random_index].click()
+                            job_card.click()
+                            job = self.scrape_job_card(job_card)
+
                         job_results.append(job)
                         # sleep(1)
 

@@ -40,8 +40,8 @@ def create_browser_session():
     driver = webdriver.Chrome()
     # Implement your specific login logic here (similar to login_to_account above)
     # ...
-    email = "ziicug@makobj.store"
-    password = "Fishpassword"
+    email = "rutjub@makobj.store"
+    password = "qwerty1234"
     actions.login(driver, email, password)
     return driver
 
@@ -93,8 +93,8 @@ if __name__ == "__main__":
 #output : a csv file with all jobs data provided
 
 driver = webdriver.Chrome()
-email = "ziicug@makobj.store"
-password = "Fishpassword"
+email = "rutjub@makobj.store"
+password = "qwerty1234"
 actions.login(driver, email, password)
 
 
