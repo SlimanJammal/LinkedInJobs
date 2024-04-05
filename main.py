@@ -60,30 +60,31 @@ def load_session(driver,cookies_file):
     return driver
 
 def main():
-    try:
-        driver = webdriver.Chrome()
-        driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
-        driver.get("https://www.linkedin.com/")
-        print("Loaded existing session")
-    except (FileNotFoundError,EOFError,TypeError):
-        driver = create_browser_session()
-        save_session(driver, "saved_session.pkl")  # Save for future use
-        print("Created and saved new session")
+    # try:
+    #     driver = webdriver.Chrome()
+    #     driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
+    #     driver.get("https://www.linkedin.com/")
+    #     print("Loaded existing session")
+    # except (FileNotFoundError,EOFError,TypeError):
+    #     driver = create_browser_session()
+    #     save_session(driver, "saved_session.pkl")  # Save for future use
+    #     print("Created and saved new session")
+    #
+    #
+    # job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+    # job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+    # # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
 
-
-    job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-    job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
-    # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
-    database_functions.create_db()
-    data = extract_job_data(job_listings)
-    orig_add_data_to_db(data)
-    database_functions.create_processed_jobs_table()
+    # database_functions.create_db()
+    # data = extract_job_data(job_listings)
+    # orig_add_data_to_db(data)
+    # database_functions.create_processed_jobs_table()
     temp_data = database_functions.fetch_jobs_data()
     processed_data = database_functions.generate_job_fields(temp_data)
     database_functions.insert_processed_fields(processed_data)
 
     print("Finished")
-    driver.quit()  # Close the browser session
+    # driver.quit()  # Close the browser session
 
 
 # def get_email_and_password(file_path):
@@ -115,16 +116,16 @@ if __name__ == "__main__":
 # input : a list of jobs , and optionally filename for the csv file
 #output : a csv file with all jobs data provided
 
-driver = webdriver.Chrome()
-email, password = get_email_and_password("login.txt")
-actions.login(driver, email, password)
+# driver = webdriver.Chrome()
+# email, password = get_email_and_password("login.txt")
+# actions.login(driver, email, password)
 
 
 
 
-job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
-
+# job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+# job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
+#
 
 
 # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
