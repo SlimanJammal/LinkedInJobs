@@ -130,7 +130,7 @@ class JobSearch(Scraper):
 
 
         job_results = []
-        for page_number in range(1, 5):
+        for page_number in range(1,2 ):
             try:
                 number_of_results_xpath ="//*[@id=\"main\"]/div/div[2]/div[1]/header/div[1]/small/div"
                 tempo = self.driver.find_elements(By.XPATH, number_of_results_xpath)
