@@ -84,7 +84,7 @@ def main():
     orig_add_data_to_db(data)
     database_functions.create_processed_jobs_table()
     temp_data = database_functions.fetch_jobs_data()
-    processed_data = database_functions.generate_job_fields(temp_data)
+    processed_data = database_functions.get_no_experience_jobs(temp_data)
     database_functions.insert_processed_fields(processed_data)
 
     print("Finished")

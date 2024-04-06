@@ -58,52 +58,50 @@ def fetch_jobs_data():
     return jobs_dict
 
 
-def generate_job_fields(job_data):
-    # todo we need to fix this function, chatgpt out is wrong. and acces of completion is incorrect.
+def get_no_experience_jobs(job_data):
+
     print("Generating job fields")
+
     client = OpenAI()
     messages = []
     messages.append({
-        "role": "system",
-        "content": "you are given a list of jobs, each message of the following is a job, with it's attributes - job title,"
-                   " company name, location, job url and job description."
+        "role": "user",
+        "content": ""
     })
-    temp_index = 0 #todo remove- testing only
+
+    answers = []
+    temp_index = 0
     for job_id, job_details in job_data.items():
-        if temp_index == 10:
-            break
-        message = {"role": "user",
-                   "content": f"Title: {job_details['title']}, Company Name: {job_details['company_name']}, Location: {job_details['location']}, Job URL: {job_details['job_url']}, Job Description: {job_details['job_description']}."}
-        messages.append(message)
+        try:
+            message = {"role": "user",
+                       "content": f"does this job need experience answer yes/no only. Title: {job_details['title']}, Index: {temp_index+1}, Job Description: {job_details['job_description']}."}
+            completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[message]
+            )
 
-        temp_index +=1
+            answers.append([job_details['title'],completion.choices[0].message.content])
+        except Exception as e:
+            print("gpt error in get_no_experience_jobs")
+            print(e)
+            if answers[-1][0] != job_details['title']:
+                answers.append([job_details['title'], "error"])
+        temp_index += 1
 
-    messages.append({
-        "role": "system",
-        "content": "You need to return for each job the following (separate the attributes for each job by a #)"
-                   " fields  Employment Type: Full Time/Part time,Work Experience Level Needed: number of years in int"
-                   " could be 0 too, "
-                   "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
-                   " in a list i.e [skill1,skill2,skill3]. Separate each jobs data's with **** (when finishing the data about a job write ****) "
-    })
-    completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages
-    )
-
-    returned_msg = completion.choices[0].message
-    print(returned_msg)
     try:
         with open('gpt_out_msg.txt', 'w') as file:
-            file.write(returned_msg.content)
+            for answer in answers:
+                file.write(str(answer))
         print("Content successfully written to the file.")
     except IOError:
         print("Error: Unable to write to the file.")
-    generated_fields = []
-    # for i, job_id in enumerate(job_data):
-    #     generated_fields.append({"job_id": job_id, "fields":completion.choices[0].message["content"]})
+    no_experience_list = []
+    for i, answer in enumerate(answers):
+        if answer[1] == "No" or answer[1] == "no":
+            index = i+1
+            no_experience_list.append(job_data[index])
 
-    return generated_fields
+    return no_experience_list
 
 
 def create_processed_jobs_table():
