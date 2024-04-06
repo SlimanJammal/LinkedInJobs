@@ -104,31 +104,27 @@ def get_no_experience_jobs(job_data):
     return no_experience_list
 
 
-def create_processed_jobs_table():
+def create_no_exp_jobs_table():
     print("Creating processed jobs table...")
     db = connect_to_db()
     cursor = db.cursor()
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS ProcessedJobs (
-        job_id INT PRIMARY KEY,
-        processed_fields TEXT
-    )
-    """
-    cursor.execute(create_table_query)
+    cursor.execute("DROP TABLE IF EXISTS JobsWithOutExperience")
+    cursor.execute(
+        "Create Table JobsWithOutExperience (title TEXT NOT NULL,job_url TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL,job_description TEXT NOT NULL,id int PRIMARY KEY NOT NULL AUTO_INCREMENT)")
     db.commit()
     cursor.close()
     db.close()
 
 
-def insert_processed_fields(processed_fields):
+def insert_no_exp_jobs(no_exp_jobs):
     print("Inserting processed")
     db = connect_to_db()
     cursor = db.cursor()
-    for job in processed_fields:
-        job_id = job["job_id"]
-        fields = job["fields"]
-        insert_query = "INSERT INTO ProcessedJobs (job_id, processed_fields) VALUES (%s, %s)"
-        cursor.execute(insert_query, (job_id, fields))
+
+    sql = "INSERT INTO Jobs (title,job_url,company_name,location,posted_date,applications_count,job_description) VALUES(%s,%s,%s,%s,%s,%s,%s)"
+    cursor.executemany(sql, no_exp_jobs)
+    # Commit the changes
     db.commit()
+    print(cursor.rowcount, "records inserted.")
     cursor.close()
     db.close()

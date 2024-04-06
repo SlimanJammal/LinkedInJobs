@@ -82,10 +82,10 @@ def main():
     database_functions.create_db()
     data = extract_job_data(job_listings)
     orig_add_data_to_db(data)
-    database_functions.create_processed_jobs_table()
+    database_functions.create_no_exp_jobs_table()
     temp_data = database_functions.fetch_jobs_data()
-    processed_data = database_functions.get_no_experience_jobs(temp_data)
-    database_functions.insert_processed_fields(processed_data)
+    no_exp_jobs = database_functions.get_no_experience_jobs(temp_data)
+    database_functions.insert_no_exp_jobs(no_exp_jobs)
 
     print("Finished")
     driver.quit()  # Close the browser session
