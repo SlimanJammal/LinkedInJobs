@@ -26,6 +26,11 @@ def extract_job_data(jobs):
         )
     )
   return job_data
+
+
+# # input : a list of jobs , and optionally filename for the csv file
+# #output : a csv file with all jobs data provided
+
 def write_jobs_to_csv(jobs, filename="jobs.csv"):
 
 
@@ -112,22 +117,21 @@ if __name__ == "__main__":
 
 
 
-# input : a list of jobs , and optionally filename for the csv file
-#output : a csv file with all jobs data provided
 
-driver = webdriver.Chrome()
-email, password = get_email_and_password("login.txt")
-actions.login(driver, email, password)
-
-
-
-
-job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
-
-
-
-# write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
-
-# print(len(job_listings))
-
+#
+# driver = webdriver.Chrome()
+# email, password = get_email_and_password("login.txt")
+# actions.login(driver, email, password)
+#
+#
+#
+#
+# job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+# job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
+#
+#
+#
+# # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
+#
+# # print(len(job_listings))
+#
