@@ -221,7 +221,7 @@ class Company(Scraper):
         x_off = 0
         for i in range(num_attributes):
             txt = labels[i].text.strip()
-            if txt == 'Website':
+            if txt == 'website':
                 self.website = values[i+x_off].text.strip()
             elif txt == 'Industry':
                 self.industry = values[i+x_off].text.strip()
