@@ -6,25 +6,21 @@ from openai import OpenAI
 
 
 def connect_to_db():
-    try:
-        with open('db_pass.txt', 'r') as file:
-            password = file.readline().strip()
-    except FileNotFoundError:
-        print("Error: db_pass.txt not found")
-
     return mysql.connector.connect(host=credintials.db_host, user=credintials.db_user, password=credintials.db_password,
                                    database=credintials.db_name)
 
 
 def create_db():
-    db = mysql.connector.connect(host=credintials.db_host, user=credintials.db_user, password=credintials.db_password)
+    db = mysql.connector.connect(host=str(credintials.db_host), user=str(credintials.db_user), password=str(credintials.db_password))
     cursor = db.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS initdb")
     db = connect_to_db()
     cursor = db.cursor()
     cursor.execute("DROP TABLE IF EXISTS Jobs")
-    cursor.execute(
-        "Create Table Jobs (title TEXT NOT NULL,job_url TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL,job_description TEXT NOT NULL,id int PRIMARY KEY NOT NULL AUTO_INCREMENT)")
+    #cursor.execute(
+     #   "Create Table Jobs (title TEXT NOT NULL,job_url TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL,job_description TEXT NOT NULL,id int PRIMARY KEY NOT NULL AUTO_INCREMENT)")
+    # new table with url as the unique identifier
+    cursor.execute("CREATE TABLE Jobs (title TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL, job_description TEXT NOT NULL, job_url VARCHAR(2083) NOT NULL,job_id VARCHAR(15) NOT NULL UNIQUE )")
     db.commit()
     cursor.close()
     db.close()
@@ -35,7 +31,9 @@ def orig_add_data_to_db(data):
     cursor = db.cursor()
 
     sql = "INSERT INTO Jobs (title,job_url,company_name,location,posted_date,applications_count,job_description) VALUES(%s,%s,%s,%s,%s,%s,%s)"
-    cursor.executemany(sql, data)
+    # add data to new table
+    sql_2 = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+    cursor.executemany(sql_2, data)
     # Commit the changes
     db.commit()
     print(cursor.rowcount, "records inserted.")
@@ -134,3 +132,38 @@ def insert_processed_fields(processed_fields):
     db.commit()
     cursor.close()
     db.close()
+
+
+
+def update_db_data(data):
+
+    db = connect_to_db()
+    cursor = db.cursor()
+
+    # Prepare a SELECT statement to check for existing URLs
+    select_sql = "SELECT job_id FROM Jobs WHERE job_url IN (%s)" % ','.join('%s' for _ in data)
+    urls_sql = "SELECT job_id FROM Jobs"
+    placeholders = [item[-1] for item in data]  # Extract job_urls from data
+
+    cursor.execute(urls_sql)
+    # ex_urls = cursor.fetchall()
+    # Check for existing URLs
+    # cursor.execute(select_sql, placeholders)
+    existing_urls = [url[0] for url in cursor.fetchall()]
+
+    # Filter out data with existing URLs
+    new_data = [item for item in data if item[-1] not in existing_urls]
+
+    # Insert only new data (if any)
+    if new_data:
+        sql = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+        cursor.executemany(sql, new_data)
+        db.commit()
+        print(cursor.rowcount, "new records inserted.")
+    else:
+        print("No new jobs found to insert.")
+
+    cursor.close()
+    db.close()
+
+

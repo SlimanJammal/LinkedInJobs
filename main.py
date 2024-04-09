@@ -17,12 +17,13 @@ def extract_job_data(jobs):
     job_data.append(
         (
             job.job_title,
-            job.linkedin_url,
             job.company,
             job.location,
             job.posted_date,
             job.applicant_count,
             job.job_description,
+            job.linkedin_url,
+            job.linkedin_url.split("/")[5]
         )
     )
   return job_data
@@ -82,10 +83,11 @@ def main():
     database_functions.create_db()
     data = extract_job_data(job_listings)
     orig_add_data_to_db(data)
-    database_functions.create_processed_jobs_table()
-    temp_data = database_functions.fetch_jobs_data()
-    processed_data = database_functions.generate_job_fields(temp_data)
-    database_functions.insert_processed_fields(processed_data)
+    database_functions.update_db_data(data)
+    # database_functions.create_processed_jobs_table()
+    # temp_data = database_functions.fetch_jobs_data()
+    # processed_data = database_functions.generate_job_fields(temp_data)
+    # database_functions.insert_processed_fields(processed_data)
 
     print("Finished")
     driver.quit()  # Close the browser session
@@ -109,29 +111,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-
-
-
-
-#
-# driver = webdriver.Chrome()
-# email, password = get_email_and_password("login.txt")
-# actions.login(driver, email, password)
-#
-#
-#
-#
-# job_search = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-# job_listings = job_search.search("software engineer")  # returns the list of `Job` from the first page
-#
-#
-#
-# # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")  # Write to jobs.csv
-#
-# # print(len(job_listings))
-#
