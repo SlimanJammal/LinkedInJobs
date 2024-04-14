@@ -65,7 +65,45 @@ def load_session(driver,cookies_file):
             driver.add_cookie(cookie)
     return driver
 
-def main():
+
+def update_database():
+    try:
+        driver = webdriver.Chrome()
+        driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
+        driver.get("https://www.linkedin.com/")
+        print("Loaded existing session")
+    except (FileNotFoundError,EOFError,TypeError):
+        driver = create_browser_session()
+        save_session(driver, "saved_session.pkl")  # Save for future use
+        print("Created and saved new session")
+
+    try:
+        job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+        job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+    except Exception as e:
+        print("Error During job search: " + str(e))
+    # possibly add these to look for different types of jobs to add to the database
+    # job_listings2 = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+    # job_listings3 = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+
+    try:
+        data = extract_job_data(job_listings)
+    except Exception as e:
+        print("Data could not be extracted")
+    try:
+        database_functions.update_db_data(data)
+    except Exception as e:
+        print("Error updating database")
+    driver.quit()
+
+
+
+
+
+
+
+# this function will be called only once at the start-up of the DataBase
+def initialization() -> None:
     try:
         driver = webdriver.Chrome()
         driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
@@ -93,21 +131,6 @@ def main():
     driver.quit()  # Close the browser session
 
 
-# def get_email_and_password(file_path):
-#     try:
-#         with open(file_path, 'r') as file:
-#             lines = file.readlines()
-#             if len(lines) >= 2:
-#                 email = lines[0].strip()
-#                 password = lines[1].strip()
-#                 return email, password
-#             else:
-#                 print("Error: File does not contain both email and password.")
-#                 return None, None
-#     except FileNotFoundError:
-#         print("Error: File not found.")
-#         return None, None
-
 if __name__ == "__main__":
-    main()
+    initialization()
 
