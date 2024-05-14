@@ -1,15 +1,18 @@
-import os
 import pickle
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from database_functions import orig_add_data_to_db
 import database_functions
 import job_search, actions
 from selenium import webdriver
 import csv
 import credintials
+from apscheduler.schedulers.blocking import BlockingScheduler
 from openai import OpenAI
+
+from jobs import Job
+
+
+# pip install -r requirements.txt
+
 def extract_job_data(jobs):
 
   job_data = []
@@ -23,7 +26,7 @@ def extract_job_data(jobs):
             job.applicant_count,
             job.job_description,
             job.linkedin_url,
-            job.linkedin_url.split("/")[5]
+            job.linkedin_url.split("/")[5]# job id
         )
     )
   return job_data
@@ -97,7 +100,34 @@ def update_database():
     driver.quit()
 
 
+def read_jobs_from_csv(csv_file_path):
+    """
+    Reads jobs data from a CSV file and creates a list of Job objects.
 
+    Args:
+        csv_file_path (str): Path to the CSV file containing job data.
+
+    Returns:
+        list[Job]: A list of Job objects representing the job data.
+    """
+
+    jobs = []
+    with open(csv_file_path, "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            job = Job(
+                linkedin_url=row.get("linkedin_url", None),
+                job_title=row.get("job_title", None),
+                company=row.get("company", None),
+                location=row.get("location", None),
+                posted_date=row.get("posted_date", None),
+                applicant_count=row.get("applicant_count", None),
+                job_description=row.get("job_description", None),
+                scrape=False
+            )
+
+            jobs.append(job)
+    return jobs
 
 
 
@@ -132,5 +162,12 @@ def initialization() -> None:
 
 
 if __name__ == "__main__":
-    initialization()
+    # initialization()
 
+    # scheduler = BlockingScheduler()
+    # scheduler.add_job(update_database, 'interval', hours=12, minutes=0, seconds=0)
+    # scheduler.start()
+
+    jobs = read_jobs_from_csv('software_engineer_jobs.csv')
+    processed_data = database_functions.data_pre_processing(jobs)
+    print("")

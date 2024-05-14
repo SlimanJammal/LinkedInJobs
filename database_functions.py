@@ -166,4 +166,74 @@ def update_db_data(data):
     cursor.close()
     db.close()
 
+def data_pre_processing(job_data):
+    # todo we need to fix this function, chatgpt out is wrong. and acces of completion is incorrect.
+    print("Generating job fields")
+    client = OpenAI()
+    # messages = []
+    start_msg = {
+        "role": "system",
+        "content": "you are given a list of jobs, each message of the following is a job, with it's attributes - job title,"
+                   " company name, location, job url and job description."
+    }
+    end_msg = {
+        "role": "system",
+        "content": "You need to return for the given job the following fields (separate  by a #)"
+                   "   Employment Type: Full Time/Part time , Work Experience Level Needed: number of years in int (could be 0 too), "
+                   "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
+                   " in a list i.e [skill1,skill2,skill3].  "
+                    "result should look like (FUll time # 5 ears + # bsc or equevelant # [skill1,skill2,skill3] )"
+    }
+    # messages.append({
+    #     "role": "system",
+    #     "content": "You need to return for each job the following (separate the attributes for each job by a #)"
+    #                " fields  Employment Type: Full Time/Part time,Work Experience Level Needed: number of years in int"
+    #                " could be 0 too, "
+    #                "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
+    #                " in a list i.e [skill1,skill2,skill3]. Separate each jobs data's with **** (when finishing the data about a job write ****) "
+    # })
+    # messages.append({
+    #     "role": "system",
+    #     "content": "you are given a list of jobs, each message of the following is a job, with it's attributes - job title,"
+    #                " company name, location, job url and job description."
+    # })
+    temp_index = 0 #todo remove- testing only
+    returned_msgs = []
+    for job in job_data:
+        if temp_index == 10:
+            break
+        messages = []
+        messages.append(start_msg)
+        message = {"role": "user",
+                   "content": f"Title: {job.job_title}, Company Name: {job.company}, Location: {job.location}, Job URL: {job.linkedin_url}, Job Description: {job.job_description}."}
+        messages.append(message)
+        messages.append(end_msg)
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages
+        )
+        returned_msgs.append(completion.choices[0].message.content)
+        temp_index +=1
 
+
+    # completion = client.chat.completions.create(
+    #     model="gpt-3.5-turbo",
+    #     messages=messages
+    # )
+
+    # returned_msg = completion.choices[0].message
+    print(returned_msgs)
+    for msg in returned_msgs:
+        parts = msg.split("#")
+        print(parts[-1]) # parts 1) full time / part time 2) experience 3) degree 4) skills
+    # try:
+    #     with open('gpt_out_msg.txt', 'w') as file:
+    #         file.write(returned_msg.content)
+    #     print("Content successfully written to the file.")
+    # except IOError:
+    #     print("Error: Unable to write to the file.")
+    # generated_fields = []
+    # # for i, job_id in enumerate(job_data):
+    # #     generated_fields.append({"job_id": job_id, "fields":completion.choices[0].message["content"]})
+
+    return returned_msgs
