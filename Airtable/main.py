@@ -42,4 +42,6 @@ jobs_list_temp = [['Job Title', 'Company', 'experience', 'Location', 'Job Type',
                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link']]
 
+
 add_jobs_list_to_airtable(jobs_list_temp)
+
