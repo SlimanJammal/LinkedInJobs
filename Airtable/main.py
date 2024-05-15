@@ -21,8 +21,14 @@ def add_to_airtable(data_):
     print(r.status_code)
 
 
+# input list of jobs
+# i.e.
+# jobs_list_temp = [['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
+#                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
+#                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link']]
 def add_jobs_list_to_airtable(jobs_list):
     data = []
+    size = 0
     for job in jobs_list:
         record = {"fields": {"job_title": job[0],
                              "company": job[1],
@@ -34,14 +40,12 @@ def add_jobs_list_to_airtable(jobs_list):
                   }
 
         data.append(record)
-    data_ = {"records": data}
-    add_to_airtable(data_)
+        size += 1
+        # max number to add in patch is 10
+        if size == 10:
+            data_ = {"records": data}
+            add_to_airtable(data_)
+            data = []
+            size = 0
 
-
-jobs_list_temp = [['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
-                  ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
-                  ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link']]
-
-
-add_jobs_list_to_airtable(jobs_list_temp)
-
+# add_jobs_list_to_airtable(jobs_list_temp)
