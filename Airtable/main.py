@@ -20,13 +20,11 @@ def add_to_airtable(data_):
     r = requests.post(endpoint, json=data, headers=headers)
     # print(r.content)
     print(r.status_code)
+    print(r.json())
+
 
 
 # input list of jobs
-# i.e.
-# jobs_list_temp = [['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
-#                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link'],
-#                   ['Job Title', 'Company', 'experience', 'Location', 'Job Type', 'link']]
 def add_jobs_list_to_airtable(jobs_list):
     data = []
     size = 0
@@ -35,9 +33,11 @@ def add_jobs_list_to_airtable(jobs_list):
                   "fields": {"job_title": job[0],
                              "company": job[1],
                              "experience": job[2],
-                             "location": job[3],
-                             "job_type": job[4],
-                             "link": job[5]
+                             "experience_description": job[3],
+                             "location": job[4],
+                             "job_type": job[5],
+                             "skills": job[6],
+                             "link": job[7]
                              }
                   }
 
@@ -45,28 +45,30 @@ def add_jobs_list_to_airtable(jobs_list):
         size += 1
         # max number to add in patch is 10
         if size == 10:
-            data_ = {"records": data}
+            data_ = {"records": data,"typecast": True}
             add_to_airtable(data_)
             data = []
             size = 0
 
     if len(data):
-        data_ = {"records": data}
+        data_ = {"records": data,"typecast": True}
         add_to_airtable(data_)
 
+skills = ['a','b']
 jobs_list_temp = [
-    ['Software Engineer', 'ABC Company', '3 years', 'New York', 'Full-time', 'https://example.com/job1'],
-    ['Data Scientist', 'XYZ Corporation', '2 years', 'San Francisco', 'Remote', 'https://example.com/job2'],
-    ['Product Manager', '123 Enterprises', '5 years', 'London', 'Part-time', 'https://example.com/job3'],
-    ['UX Designer', 'Tech Innovations Ltd.', '4 years', 'Berlin', 'Full-time', 'https://example.com/job4'],
-    ['Marketing Analyst', 'Global Marketing Solutions', '3 years', 'Paris', 'Contract', 'https://example.com/job5'],
-    ['Financial Analyst', 'Finance Unlimited', '2 years', 'Tokyo', 'Full-time', 'https://example.com/job6'],
-    ['Software Developer', 'Tech Solutions Inc.', '3 years', 'Sydney', 'Remote', 'https://example.com/job7'],
-    ['HR Manager', 'Human Resources Experts', '5 years', 'Toronto', 'Full-time', 'https://example.com/job8'],
-    ['Sales Representative', 'SalesPro', '1 year', 'Dubai', 'Commission-based', 'https://example.com/job9'],
-    ['Graphic Designer', 'Creative Designs Co.', '2 years', 'Los Angeles', 'Part-time', 'https://example.com/job10'],
+    ['Software Engineer', 'ABC Company','Experience needed' , '3 years', ['New York'], 'Full-time',skills , 'https://example.com/job1'],
+    ['Data Scientist', 'XYZ Corporation', 'Experience needed', '2 years', ['San Francisco'], 'Remote',skills , 'https://example.com/job2'],
+    ['Product Manager', '123 Enterprises', 'Experience needed', '5 years', ['London'], 'Part-time',skills , 'https://example.com/job3'],
+    ['UX Designer', 'Tech Innovations Ltd.', 'Experience needed', '4 years', ['Berlin'], 'Full-time',skills , 'https://example.com/job4'],
+    ['Marketing Analyst', 'Global Marketing Solutions', 'Experience needed', '3 years', ['Paris'], 'Contract',skills , 'https://example.com/job5'],
+    ['Financial Analyst', 'Finance Unlimited', 'Experience needed', '2 years', ['Tokyo'], 'Full-time',skills , 'https://example.com/job6'],
+    ['Software Developer', 'Tech Solutions Inc.', 'None', '3 years', ['Sydney'], 'Remote',skills , 'https://example.com/job7'],
+    ['HR Manager', 'Human Resources Experts', 'None', '5 years', ['Toronto'], 'Full-time',skills , 'https://example.com/job8'],
+    ['Sales Representative', 'SalesPro', 'None', '1 year', ['Dubai'], 'Commission-based',skills , 'https://example.com/job9'],
+    ['Graphic Designer', 'Creative Designs Co.', 'None', '2 years', ['Los Angeles'], 'Part-time',skills , 'https://example.com/job10']
 
 ]
+# jobs_list_temp = [["a","dfsasda","None","sadasd",["New York"],"part time",["fffff"],"wwww.google.com"]]
 add_jobs_list_to_airtable(jobs_list_temp)
 
 
@@ -86,4 +88,4 @@ def delete_all_records():
     print("All records have been deleted.")
 
 
-
+# delete_all_records()
