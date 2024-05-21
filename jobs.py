@@ -19,6 +19,11 @@ class Job(Scraper):
         posted_date=None,
         applicant_count=None,
         job_description=None,
+        full_time=None,
+        experience_years=None,
+        type=None,
+        required_skills=None,
+        needs_experience=None,
         benefits="empty",
         driver=None,
         close_on_complete=True,
@@ -31,6 +36,11 @@ class Job(Scraper):
         self.company = company
         self.company_linkedin_url = company_linkedin_url
         self.location = location
+        self.full_time = full_time,
+        self.experience_years = experience_years,
+        self.type = type,
+        self.required_skills = required_skills,
+        self.needs_experience = needs_experience,
         self.posted_date = posted_date
         self.applicant_count = applicant_count
         self.job_description = job_description

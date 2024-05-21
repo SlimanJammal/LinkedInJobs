@@ -26,7 +26,12 @@ def extract_job_data(jobs):
             job.applicant_count,
             job.job_description,
             job.linkedin_url,
-            job.linkedin_url.split("/")[5]# job id
+            job.linkedin_url.split("/")[5],# job id
+            job.full_time,
+            job.experience_years,
+            job.type,
+            job.required_skills,
+            job.needs_experience
         )
     )
   return job_data
@@ -90,7 +95,9 @@ def update_database():
     # job_listings3 = job_srch.search("software engineer")  # returns the list of `Job` from the first page
 
     try:
-        data = extract_job_data(job_listings)
+        # data = extract_job_data(job_listings)
+        processed_data = database_functions.data_pre_processing(job_listings)
+        data = extract_job_data(processed_data)
     except Exception as e:
         print("Data could not be extracted")
     try:
@@ -144,18 +151,17 @@ def initialization() -> None:
         save_session(driver, "saved_session.pkl")  # Save for future use
         print("Created and saved new session")
 
+    #
+    # job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
+    # job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
 
-    job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-    job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
     # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
-    database_functions.create_db()
-    data = extract_job_data(job_listings)
-    orig_add_data_to_db(data)
-    database_functions.update_db_data(data)
-    # database_functions.create_processed_jobs_table()
-    # temp_data = database_functions.fetch_jobs_data()
-    # processed_data = database_functions.generate_job_fields(temp_data)
-    # database_functions.insert_processed_fields(processed_data)
+
+    # database_functions.create_db()
+    # data = extract_job_data(job_listings)
+    # orig_add_data_to_db(data)
+    # database_functions.update_db_data(data)
+
 
     print("Finished")
     driver.quit()  # Close the browser session
@@ -168,6 +174,14 @@ if __name__ == "__main__":
     # scheduler.add_job(update_database, 'interval', hours=12, minutes=0, seconds=0)
     # scheduler.start()
 
-    jobs = read_jobs_from_csv('software_engineer_jobs.csv')
-    processed_data = database_functions.data_pre_processing(jobs)
+    update_database()
+
+
+    # jobs = read_jobs_from_csv('software_engineer_jobs.csv')
+    # database_functions.create_db()
+    # processed_data = database_functions.data_pre_processing(jobs)
+    # data = extract_job_data(processed_data)
+    # orig_add_data_to_db(data[:9])
+
+
     print("")

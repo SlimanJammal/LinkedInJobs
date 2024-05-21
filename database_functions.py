@@ -20,7 +20,7 @@ def create_db():
     #cursor.execute(
      #   "Create Table Jobs (title TEXT NOT NULL,job_url TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL,job_description TEXT NOT NULL,id int PRIMARY KEY NOT NULL AUTO_INCREMENT)")
     # new table with url as the unique identifier
-    cursor.execute("CREATE TABLE Jobs (title TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL, job_description TEXT NOT NULL, job_url VARCHAR(2083) NOT NULL,job_id VARCHAR(15) NOT NULL UNIQUE )")
+    cursor.execute("CREATE TABLE Jobs (title TEXT NOT NULL,company_name TEXT NOT NULL,location TEXT NOT NULL,posted_date TEXT NOT NULL,applications_count TEXT NOT NULL, job_description TEXT NOT NULL, job_url VARCHAR(2083) NOT NULL,job_id VARCHAR(15) NOT NULL UNIQUE,full_time VARCHAR(40) NOT NULL,experience VARCHAR(80) NOT NULL,degree_type TEXT NOT NULL,required_skills TEXT NOT NULL,needs_experience TEXT NOT NULL )")
     db.commit()
     cursor.close()
     db.close()
@@ -32,7 +32,7 @@ def orig_add_data_to_db(data):
 
     sql = "INSERT INTO Jobs (title,job_url,company_name,location,posted_date,applications_count,job_description) VALUES(%s,%s,%s,%s,%s,%s,%s)"
     # add data to new table
-    sql_2 = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+    sql_2 = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id,full_time,experience,degree_type,required_skills,needs_experience) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     cursor.executemany(sql_2, data)
     # Commit the changes
     db.commit()
@@ -152,11 +152,11 @@ def update_db_data(data):
     existing_urls = [url[0] for url in cursor.fetchall()]
 
     # Filter out data with existing URLs
-    new_data = [item for item in data if item[-1] not in existing_urls]
+    new_data = [item for item in data if item[7] not in existing_urls]
 
     # Insert only new data (if any)
     if new_data:
-        sql = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO Jobs (title,company_name,location,posted_date,applications_count,job_description,job_url,job_id,full_time,experience,degree_type,required_skills,needs_experience) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         cursor.executemany(sql, new_data)
         db.commit()
         print(cursor.rowcount, "new records inserted.")
@@ -181,27 +181,15 @@ def data_pre_processing(job_data):
         "content": "You need to return for the given job the following fields (separate  by a #)"
                    "   Employment Type: Full Time/Part time , Work Experience Level Needed: number of years in int (could be 0 too), "
                    "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
-                   " in a list i.e [skill1,skill2,skill3].  "
-                    "result should look like (FUll time # 5 ears + # bsc or equevelant # [skill1,skill2,skill3] )"
+                   " in a list i.e skill1,skill2,skill3. and at the end tell me if the job needs work experience yes/no answer  "
+                    "result should look like (FUll time # 5 years + # bsc or equevelant # skill1,skill2,skill3 # yes)"
     }
-    # messages.append({
-    #     "role": "system",
-    #     "content": "You need to return for each job the following (separate the attributes for each job by a #)"
-    #                " fields  Employment Type: Full Time/Part time,Work Experience Level Needed: number of years in int"
-    #                " could be 0 too, "
-    #                "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
-    #                " in a list i.e [skill1,skill2,skill3]. Separate each jobs data's with **** (when finishing the data about a job write ****) "
-    # })
-    # messages.append({
-    #     "role": "system",
-    #     "content": "you are given a list of jobs, each message of the following is a job, with it's attributes - job title,"
-    #                " company name, location, job url and job description."
-    # })
+
     temp_index = 0 #todo remove- testing only
     returned_msgs = []
     for job in job_data:
-        if temp_index == 10:
-            break
+        # if temp_index == 10:
+        #     break
         messages = []
         messages.append(start_msg)
         message = {"role": "user",
@@ -213,27 +201,20 @@ def data_pre_processing(job_data):
             messages=messages
         )
         returned_msgs.append(completion.choices[0].message.content)
-        temp_index +=1
+        # temp_index +=1
 
 
-    # completion = client.chat.completions.create(
-    #     model="gpt-3.5-turbo",
-    #     messages=messages
-    # )
 
-    # returned_msg = completion.choices[0].message
-    print(returned_msgs)
-    for msg in returned_msgs:
-        parts = msg.split("#")
-        print(parts[-1]) # parts 1) full time / part time 2) experience 3) degree 4) skills
-    # try:
-    #     with open('gpt_out_msg.txt', 'w') as file:
-    #         file.write(returned_msg.content)
-    #     print("Content successfully written to the file.")
-    # except IOError:
-    #     print("Error: Unable to write to the file.")
-    # generated_fields = []
-    # # for i, job_id in enumerate(job_data):
-    # #     generated_fields.append({"job_id": job_id, "fields":completion.choices[0].message["content"]})
+    for i,msg in enumerate(returned_msgs):
+        try:
+            parts = msg.split("#")
+            job_data[i].full_time=parts[0]
+            job_data[i].experience_years = parts[1]
+            job_data[i].type = parts[2]
+            job_data[i].required_skills = parts[3]
+            job_data[i].needs_experience = parts[4]
+        except Exception as e:
+            continue
+        # print(parts[-1]) # parts 1) full time / part time 2) experience 3) degree 4) skills
 
-    return returned_msgs
+    return job_data
