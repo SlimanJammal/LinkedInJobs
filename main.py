@@ -1,4 +1,8 @@
+import os
 import pickle
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from database_functions import orig_add_data_to_db
 import database_functions
 import job_search, actions
