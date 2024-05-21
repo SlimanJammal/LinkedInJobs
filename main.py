@@ -3,6 +3,8 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
+from Airtable import airtable
 from database_functions import orig_add_data_to_db
 import database_functions
 import job_search, actions
@@ -161,7 +163,7 @@ def initialization() -> None:
 
     # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
 
-    # database_functions.create_db()
+    database_functions.create_db()
     # data = extract_job_data(job_listings)
     # orig_add_data_to_db(data)
     # database_functions.update_db_data(data)
@@ -178,7 +180,9 @@ if __name__ == "__main__":
     # scheduler.add_job(update_database, 'interval', hours=12, minutes=0, seconds=0)
     # scheduler.start()
 
-    update_database()
+    jobs = database_functions.get_data_from_database()
+    airtable.add_jobs_list_to_airtable(jobs,"CS")
+    # update_database()
 
 
     # jobs = read_jobs_from_csv('software_engineer_jobs.csv')

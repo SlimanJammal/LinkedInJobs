@@ -2,7 +2,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv(".env")
+load_dotenv()
+
 AIRTABLE_BASE_ID = os.environ.get('AIRTABLE_BASE_ID')
 AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
 AIRTABLE_TABLE_NAME_1 = os.environ.get('AIRTABLE_TABLE_NAME_1')
@@ -21,6 +22,7 @@ def get_table_name_by_field(field_name):
 
 
 def add_to_airtable(data_, field_name):
+
     endpoint = f'https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{get_table_name_by_field(field_name)}'
     headers = {
         "Authorization": f'Bearer {AIRTABLE_API_KEY}',
@@ -43,21 +45,22 @@ def skills_to_list(skills_):
 
 
 def add_jobs_list_to_airtable(jobs_list, field_name):
+
     data = []
     size = 0
     for job in jobs_list:
         record = {
-            "fields": {"job_title": job[1],
+            "fields": {"job_title": job[0],
                        "company": job[2],
                        "experience": job[12],
                        "experience_years": job[9],
-                       "posting_time": job[5],
-                       "applicant_count": job[6],
-                       "location": job[4],
+                       "posting_time": job[3],
+                       "applicant_count": job[4],
+                       "location": job[2],
                        "job_type": job[8],
                        "degree_type": job[10],
                        "skills": skills_to_list(job[11]),
-                       "link": job[0]
+                       "link": job[6]
                        }
         }
 

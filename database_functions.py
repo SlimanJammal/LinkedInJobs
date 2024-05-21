@@ -127,7 +127,20 @@ def insert_no_exp_jobs(no_exp_jobs):
     cursor.close()
     db.close()
 
+def get_data_from_database():
+    db = connect_to_db()
+    cursor = db.cursor()
 
+    # Prepare a SELECT statement to check for existing URLs
+    urls_sql = "SELECT * FROM Jobs"
+
+    cursor.execute(urls_sql)
+    # ex_urls = cursor.fetchall()
+    # Check for existing URLs
+    # cursor.execute(select_sql, placeholders)
+    jobs = cursor.fetchall()
+
+    return jobs
 
 def update_db_data(data):
 
