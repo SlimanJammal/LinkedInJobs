@@ -173,6 +173,43 @@ def update_db_data(data):
     cursor.close()
     db.close()
 
+def get_jobs_salaries(job_data):
+  print("Generating job salaries")
+
+
+  client = OpenAI()
+
+  salaries_list = []
+  temp_index = 0
+
+  for job_id, job_details in job_data.items():
+    try:
+      message = {
+        "role": "user",
+        "content": f"Please estimate the salary for this job monthly in {job_details['location']} in the currency of {job_details['location']}."
+                   f" Title keep the answer shorter than 20 chars: {job_details['title']}, Index: {temp_index + 1}, Job Description: {job_details['job_description']}. Provide a single line estimate of max 20 characters."
+      }
+      completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[message]
+      )
+
+      estimated_salary = completion.choices[0].message.content
+
+
+      salaries_list.append([job_details['title'], estimated_salary])
+    except Exception as e:
+      print("GPT error in get_job_salaries")
+      print(e)
+      if salaries_list[-1][0] != job_details['title']:
+        salaries_list.append([job_details['title'], "error"])
+    temp_index += 1
+
+  for i, salary in enumerate(salaries_list):
+    job_data[list(job_data.keys())[i]]['salary'] = salary[1]
+
+  return job_data
+
 def data_pre_processing(job_data):
     # todo we need to fix this function, chatgpt out is wrong. and acces of completion is incorrect.
     print("Generating job fields")
