@@ -39,7 +39,7 @@ def add_to_airtable(data_, field_name):
 
 # input list of jobs
 def skills_to_list(skills_):
-    skills_list = skills_.split("#")
+    skills_list = skills_.split(",")
 
     return skills_list
 
@@ -91,7 +91,7 @@ def delete_all_records(field_name):
     for record_id in record_ids:
         delete_url = f'{base_url}/{record_id}'
         requests.delete(delete_url, headers=headers)
-    print("All records have been deleted.")
+    print(f"All records In {field_name} airtable have been deleted.")
 
 
 #### testing #######
