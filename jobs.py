@@ -8,7 +8,31 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Job(Scraper):
+    """
+      Represents a job listing scraped from LinkedIn.
 
+      Attributes:
+          linkedin_url (str): The URL of the job listing on LinkedIn.
+          job_title (str): The title of the job.
+          driver: The Selenium WebDriver instance.
+          company (str): The name of the company offering the job.
+          company_linkedin_url (str): The LinkedIn URL of the company.
+          location (str): The location of the job.
+          full_time (str): The employment type (Full Time/Part Time).
+          experience_years (str): The required years of experience.
+          type (str): The type of education required (e.g., BSc, MSc, etc.).
+          required_skills (str): Skills required for the job.
+          needs_experience (str): Whether the job requires previous experience (Yes/No).
+          posted_date (str): The date when the job was posted.
+          applicant_count (int): The number of applicants for the job.
+          job_description (str): The description of the job.
+          benefits (str): The benefits associated with the job.
+          salary: job's estimated monthly salary in location of the job
+
+      Methods:
+          scrape: Scrapes job details from LinkedIn.
+          to_dict: Converts the job object into a dictionary.
+      """
     def __init__(
         self,
         linkedin_url=None,
@@ -24,6 +48,7 @@ class Job(Scraper):
         type=None,
         required_skills=None,
         needs_experience=None,
+        salary=None,
         benefits="empty",
         driver=None,
         close_on_complete=True,
@@ -41,6 +66,7 @@ class Job(Scraper):
         self.type = type,
         self.required_skills = required_skills,
         self.needs_experience = needs_experience,
+        self.salary = salary,
         self.posted_date = posted_date
         self.applicant_count = applicant_count
         self.job_description = job_description
@@ -73,6 +99,15 @@ class Job(Scraper):
 
 
     def scrape_logged_in(self, close_on_complete=True):
+        """
+                Scrapes job details from LinkedIn when the user is logged in.
+
+                Args:
+                    close_on_complete (bool): Whether to close the WebDriver instance after scraping. Defaults to True.
+
+                Returns:
+                    None
+                """
         driver = self.driver
         
         driver.get(self.linkedin_url)

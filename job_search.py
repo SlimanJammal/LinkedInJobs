@@ -16,6 +16,20 @@ from selenium.webdriver.common.keys import Keys
 # from bs4 import BeautifulSoup
 
 class JobSearch(Scraper):
+    """
+        Represents a job search and scraping functionality on LinkedIn.
+
+        Attributes:
+            AREAS (List[str]): A list of areas on LinkedIn job page to scrape job listings from.
+            driver: The Selenium WebDriver instance.
+            base_url (str): The base URL for LinkedIn job search.
+
+        Methods:
+            scrape: Scrapes job listings from LinkedIn.
+            scrape_job_card: Scrapes details of a single job card.
+            scrape_logged_in: Scrapes job listings when the user is logged in.
+            search: Searches for job listings based on a search term.
+        """
     AREAS = ["recommended_jobs", None, "still_hiring", "more_jobs"]
 
 

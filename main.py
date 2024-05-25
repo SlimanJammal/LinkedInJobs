@@ -37,7 +37,8 @@ def extract_job_data(jobs):
             job.experience_years,
             job.type,
             job.required_skills,
-            job.needs_experience
+            job.needs_experience,
+            job.salary
         )
     )
   return job_data
