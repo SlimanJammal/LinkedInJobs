@@ -1,9 +1,11 @@
 import os
 import pickle
+import sys
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import sys
+
 from Airtable import airtable
 
 import database_functions
