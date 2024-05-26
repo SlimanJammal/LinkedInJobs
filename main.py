@@ -1,11 +1,13 @@
 import os
 import pickle
+import sys
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 from Airtable import airtable
-from database_functions import orig_add_data_to_db
+
 import database_functions
 import job_search, actions
 from selenium import webdriver
@@ -37,7 +39,8 @@ def extract_job_data(jobs):
             job.experience_years,
             job.type,
             job.required_skills,
-            job.needs_experience
+            job.needs_experience,
+            job.salary
         )
     )
   return job_data
@@ -80,7 +83,20 @@ def load_session(driver,cookies_file):
     return driver
 
 
-def update_database():
+def get_field_name(field_name):
+    if field_name == "CS":
+        return "Software Engineer"
+    elif field_name == "ME":
+            return "Mechanical Engineer"
+    elif field_name == "EE":
+        return "Electrical Engineer"
+    else:
+        return "Software Engineer"
+
+
+def update_database(field_name):
+    job_listings = []
+    data = []
     try:
         driver = webdriver.Chrome()
         driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
@@ -93,22 +109,21 @@ def update_database():
 
     try:
         job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-        job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
+        job_listings = job_srch.search(get_field_name(field_name))
     except Exception as e:
         print("Error During job search: " + str(e))
-    # possibly add these to look for different types of jobs to add to the database
-    # job_listings2 = job_srch.search("software engineer")  # returns the list of `Job` from the first page
-    # job_listings3 = job_srch.search("software engineer")  # returns the list of `Job` from the first page
 
     try:
-        # data = extract_job_data(job_listings)
+        data = extract_job_data(job_listings)
         processed_data = database_functions.data_pre_processing(job_listings)
         data = extract_job_data(processed_data)
     except Exception as e:
+        print(e)
         print("Data could not be extracted")
     try:
-        database_functions.update_db_data(data)
+        database_functions.update_db_data(data, field_name)
     except Exception as e:
+        print(e)
         print("Error updating database")
     driver.quit()
 
@@ -147,49 +162,45 @@ def read_jobs_from_csv(csv_file_path):
 
 # this function will be called only once at the start-up of the DataBase
 def initialization() -> None:
-    try:
-        driver = webdriver.Chrome()
-        driver = load_session(driver,"saved_session.pkl")  # Attempt to load existing session
-        driver.get("https://www.linkedin.com/")
-        print("Loaded existing session")
-    except (FileNotFoundError,EOFError,TypeError):
-        driver = create_browser_session()
-        save_session(driver, "saved_session.pkl")  # Save for future use
-        print("Created and saved new session")
-
-    #
-    # job_srch = job_search.JobSearch(driver=driver, close_on_complete=False, scrape=False)
-    # job_listings = job_srch.search("software engineer")  # returns the list of `Job` from the first page
-
-    # write_jobs_to_csv(job_listings, "software_engineer_jobs.csv")
-
     database_functions.create_db()
-    # data = extract_job_data(job_listings)
-    # orig_add_data_to_db(data)
-    # database_functions.update_db_data(data)
+    print("Initialization Finished")
 
-
-    print("Finished")
-    driver.quit()  # Close the browser session
 
 
 if __name__ == "__main__":
-    # initialization()
+
+
+    field_name = None
+    if len(sys.argv) > 1:
+        if sys.argv[1:][0] == "CS" or sys.argv[1:][0] == "EE" or sys.argv[1:][0] == "ME":
+            if len(sys.argv) > 2 and sys.argv[1:][1] == "DB_CREATE":
+                initialization()
+                print("Creating New DB")
+            else:
+                print("Updating Old DB")
+
+            print("Searching Jobs In", sys.argv[1:][0])
+            field_name = sys.argv[1:][0]
+        else:
+            print("Wrong Input")
+            exit(0)
+    else:
+        print("No Arguments Provided.")
+        exit(0)
+
+
 
     # scheduler = BlockingScheduler()
     # scheduler.add_job(update_database, 'interval', hours=12, minutes=0, seconds=0)
-    # scheduler.start()
+    # scheduler.start()'
 
-    jobs = database_functions.get_data_from_database()
-    airtable.add_jobs_list_to_airtable(jobs,"CS")
-    # update_database()
+    airtable.delete_all_records(field_name)
+    update_database(field_name)
+    jobs = database_functions.get_data_from_database(field_name)
+    airtable.add_jobs_list_to_airtable(jobs, field_name)
 
 
-    # jobs = read_jobs_from_csv('software_engineer_jobs.csv')
-    # database_functions.create_db()
-    # processed_data = database_functions.data_pre_processing(jobs)
-    # data = extract_job_data(processed_data)
-    # orig_add_data_to_db(data[:9])
+
 
 
     print("")
