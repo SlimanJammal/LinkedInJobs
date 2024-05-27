@@ -72,6 +72,7 @@ def create_db():
 
 
 def orig_add_data_to_db(data, field_name):
+
     """
         Inserts data into a specified table in the database.
 
@@ -97,8 +98,10 @@ def orig_add_data_to_db(data, field_name):
     sql = f"""
         INSERT INTO {table_name} 
         (title, company_name, location, posted_date, applications_count, job_description, job_url, job_id, full_time, experience, degree_type, required_skills, needs_experience,salary) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
     """
+
+    temp = [("1","2","3","4","5","6","7","888","9","10","11","12","13","14"),("1","2","3","4","5","6","7","88","9","10","11","12","13","14")]
     cursor.executemany(sql, data)
     db.commit()
     print(cursor.rowcount, "records inserted.")
@@ -232,12 +235,15 @@ def update_db_data(data, field_name):
     new_data = [item for item in data if item[7] not in existing_urls]
 
     if new_data:
-        sql = f"""
-            INSERT INTO {table_name} 
-            (title, company_name, location, posted_date, applications_count, job_description, job_url, job_id, full_time, experience, degree_type, required_skills, needs_experience, salary) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.executemany(sql, new_data)
+        sql = f""" INSERT INTO {table_name} (title, company_name, location, posted_date, applications_count, job_description, job_url, job_id, full_time, experience, degree_type, required_skills, needs_experience, salary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s) """
+        for job in new_data:
+            try:
+                cursor.execute(sql, job)
+            except Exception as e:
+                print(e)
+                print(job[0])
+                continue
+
         db.commit()
         print(cursor.rowcount, "new records inserted.")
     else:
@@ -273,12 +279,12 @@ def data_pre_processing(job_data):
     }
     end_msg = {
         "role": "system",
-        "content": "You need to return for the given job the following fields (separate  by a #)"
+        "content": "You need to return for the given job the following fields (separate  by a &&)"
                    "   Employment Type: Full Time/Part time , Work Experience Level Needed: number of years in int (could be 0 too), "
                    "Education Requirements: None/Bsc/MSC/PHD and the field, Skills and Qualifications: write them"
                    " in a list i.e skill1,skill2,skill3. and at the end tell me if the job needs work experience yes/no answer ONLY (DO NOT WRITE THE EXPERIENCE NEEDED HERE) "
                    "Salary:  Estimate job monthly salary Number in give location's currency (e.g. USD, EUR, GBP)  "
-                    "result should look like (FUll time # 5 years + # bsc or equevelant # skill1,skill2,skill3 # yes # 20,000 EUR)"
+                    "result should look like (FUll time && 5 years + && bsc or equevelant && skill1,skill2,skill3 && yes && 20,000 EUR)"
     }
 
     temp_index = 0 #todo remove- testing only
@@ -303,7 +309,7 @@ def data_pre_processing(job_data):
 
     for i,msg in enumerate(returned_msgs):
         try:
-            parts = msg.split("#")
+            parts = msg.split("&&")
             job_data[i].full_time=parts[0]
             job_data[i].experience_years = parts[1]
             job_data[i].type = parts[2]

@@ -118,6 +118,7 @@ class JobSearch(Scraper):
     def search(self, search_term: str) -> List[Job]:
         url = os.path.join(self.base_url, "search") + f"?keywords={urllib.parse.quote(search_term)}&refresh=true"
         self.driver.get(url)
+        self.focus()
         self.scroll_to_bottom()
         self.focus()
         # sleep(self.WAIT_FOR_ELEMENT_TIMEOUT)
@@ -144,7 +145,7 @@ class JobSearch(Scraper):
 
 
         job_results = []
-        for page_number in range(1, 2):
+        for page_number in range(1, 3):
             try:
                 number_of_results_xpath ="//*[@id=\"main\"]/div/div[2]/div[1]/header/div[1]/small/div"
                 tempo = self.driver.find_elements(By.XPATH, number_of_results_xpath)
