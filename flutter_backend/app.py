@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import credintials
 import mysql.connector
-from fpdf import FPDF
+# from fpdf import FPDF
 from openai import OpenAI
+import io
 
 import requests
 app = Flask(__name__)
@@ -17,9 +18,10 @@ def connect_to_database():
 def get_jobs():
     connection = connect_to_database()
     cursor = connection.cursor()
+    job_type = request.args.get('job_type', '')
 
     # Replace with your actual SELECT query
-    cursor.execute("SELECT * FROM JOBS_CS")
+    cursor.execute(f"SELECT * FROM JOBS_{job_type}")
     data = cursor.fetchall()
 
     # Convert data to a JSON-friendly format
@@ -83,14 +85,16 @@ class CV:
         self.references = references
 
     def get_structure(self):
+        string ='\"'
+        string2 =""
 
-        data = f"# {self.full_name.replace("\"","")}\n\n"
-        data += f"Email: {self.email.replace("\"","")} | Phone: {self.phone.replace("\"","")}\n| "
-        data += f"Address: {self.address.replace("\"","")}| \n"
-        data += f"LinkedIn: {self.linkedin.replace("\"","")}\n\n"
+        data = f"# {self.full_name.replace(string,string2)}\n\n"
+        data += f"Email: {self.email.replace(string,string2)} | Phone: {self.phone.replace(string,string2)}\n| "
+        data += f"Address: {self.address.replace(string,string2)}| \n"
+        data += f"LinkedIn: {self.linkedin.replace(string,string2)}\n\n"
         if self.career_objective != "":
             data += "## Career Objective\n\n"
-            data += f"{self.career_objective.replace("\"","")}\n\n"
+            data += f"{self.career_objective.replace(string,string2)}\n\n"
 
         if len(self.education) != 0:
             data += "## Education\n\n"
@@ -189,7 +193,9 @@ def convert_to_pdf(data):
         with open(Resume_file, 'wb') as f:
             f.write(response.content)
         print(f"PDF saved to {Resume_file}")
-        return response.content
+        pdf_bytes = io.BytesIO(response.content)
+        return pdf_bytes.getvalue()
+        # return response.content
     else:
         print(f"Error {response.status_code}: {response.text}")
         return None
@@ -332,7 +338,12 @@ references=[
     pdf_res = convert_to_pdf(cv_new.get_structure())
     print("aaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-    return jsonify({'cv_pdf': pdf_res})
+    response = make_response(pdf_res)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=resume.pdf'
+
+    return response
+    # return jsonify({'cv_pdf': pdf_res})
 
 if __name__ == '__main__':
     app.run(debug=True)
