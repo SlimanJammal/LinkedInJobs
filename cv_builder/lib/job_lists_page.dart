@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 // import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
 import 'dart:typed_data';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +15,25 @@ class JobsPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _JobsPageState();
 }
+
+
+class PDFViewPage extends StatelessWidget {
+  final String path;
+
+  PDFViewPage(this.path);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('View CV'),
+      ),
+      body: SfPdfViewer.file(File(path)),
+    );
+  }
+}
+
+
 
 class _JobsPageState extends State<JobsPage> {
   final _jobDescriptionController = TextEditingController();
@@ -141,13 +163,26 @@ class _JobsPageState extends State<JobsPage> {
     String affiliationyear = _affiliationyearController.text;
     Uint8List? pdfBytes;
 
-    Future<void> saveCV() async {
-      // Open the PDF URL in a WebView
-      if (await canLaunch(pdfUrl)) {
-        await launch(pdfUrl);
-      } else {
-        throw 'Could not launch $pdfUrl';
-      }
+
+
+
+
+
+    Future<void> _viewPDF(Uint8List pdfBytes) async {
+      // Get the temporary directory
+      final dir = await getTemporaryDirectory();
+      // Create a temporary file
+      final file = File('${dir.path}/resume.pdf');
+      // Write the PDF bytes to the file
+      await file.writeAsBytes(pdfBytes, flush: true);
+
+      // Navigate to the PDF view page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFViewPage(file.path),
+        ),
+      );
     }
 
     var response = await http.post(
@@ -227,20 +262,32 @@ class _JobsPageState extends State<JobsPage> {
     );
 
     if (response.statusCode == 200) {
-        setState(() {
-          pdfBytes = response.bodyBytes as Uint8List?;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('CV generated successfully!'),
-          ),
-        );
-        await saveCV();
-    }
-
-    else {
+      setState(() {
+        pdfBytes = response.bodyBytes as Uint8List?;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CV generated successfully!'),
+        ),
+      );
+      if (pdfBytes != null) {
+        _viewPDF(pdfBytes!);
+      }
+    } else {
       print('Failed to generate CV ${response.statusCode}');
     }
+
+
+
+        // setState(() {
+        //   pdfBytes = response.bodyBytes as Uint8List?;
+        // });
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('CV generated successfully!'),
+        //   ),
+        // );
+        // await saveCV();
 
 
   }
