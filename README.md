@@ -81,7 +81,7 @@ then we have to add chatgpt API key to your environment variables,
   ``` bash
    python main.py CS DB_CREATE
   ```
-    If the database is already created, you can run:
+  If the database is already created, you can run:
   ``` bash
    python main.py CS
    ```
