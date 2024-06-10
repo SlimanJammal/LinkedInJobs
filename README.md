@@ -84,7 +84,7 @@ then we have to add chatgpt API key to your environment variables,
       If the database is already created, you can run:
       ``` bash
        python main.py CS
-       ```
+      ```
   
 
 2) Start the web application to view job listings and generate CVs.
