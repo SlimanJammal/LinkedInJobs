@@ -172,22 +172,22 @@ if __name__ == "__main__":
 
 
     field_name = None
-    # if len(sys.argv) > 1:
-    #     if sys.argv[1:][0] == "CS" or sys.argv[1:][0] == "EE" or sys.argv[1:][0] == "ME":
-    #         if len(sys.argv) > 2 and sys.argv[1:][1] == "DB_CREATE":
-    #             initialization()
-    #             print("Creating New DB")
-    #         else:
-    #             print("Updating Old DB")
-    #
-    #         print("Searching Jobs In", sys.argv[1:][0])
-    #         field_name = sys.argv[1:][0]
-    #     else:
-    #         print("Wrong Input")
-    #         exit(0)
-    # else:
-    #     print("No Arguments Provided.")
-    #     exit(0)
+    if len(sys.argv) > 1:
+        if sys.argv[1:][0] == "CS" or sys.argv[1:][0] == "EE" or sys.argv[1:][0] == "ME":
+            if len(sys.argv) > 2 and sys.argv[1:][1] == "DB_CREATE":
+                initialization()
+                print("Creating New DB")
+            else:
+                print("Updating Old DB")
+
+            print("Searching Jobs In", sys.argv[1:][0])
+            field_name = sys.argv[1:][0]
+        else:
+            print("Wrong Input")
+            exit(0)
+    else:
+        print("No Arguments Provided.")
+        exit(0)
 
 
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
     # airtable.delete_all_records(field_name)
     # initialization()
-    field_name ="CS"
+    # field_name ="CS"
     update_database(field_name)
     # jobs = database_functions.get_data_from_database(field_name)
     # airtable.add_jobs_list_to_airtable(jobs, field_name)
