@@ -67,9 +67,26 @@ then we have to add chatgpt API key to your environment variables,
 
 #### 6. Usage
 1) Run the scraper to populate the database with job listings.
+   ``` bash
+   python main.py <FIELD> [OPTION]
    ```
-   some code here
+   <FIELD>: Specify the field of interest using one of the following options:
+     -  EE for Electrical Engineering.
+     -  CS for Computer Science.
+     -  ME for Mechanical Engineering.
+   [OPTION] (Optional):
+    DB_CREATE: Use this option to create or update the database. It deletes all existing data and creates new tables.
+
+  Example:
+  ``` bash
+   python main.py CS DB_CREATE
+  ```
+    If the database is already created, you can run:
+  ``` bash
+   python main.py CS
    ```
+  
+
 2) Start the web application to view job listings and generate CVs.
    ```
    some code here
