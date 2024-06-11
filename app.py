@@ -335,7 +335,7 @@ references=[
     data = parse_data_string(cv_text)
     cv_new = CV(**data)
     pdf_res = convert_to_pdf(cv_new.get_structure())
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("pdf created")
 
     response = make_response(pdf_res)
     response.headers['Content-Type'] = 'application/pdf'

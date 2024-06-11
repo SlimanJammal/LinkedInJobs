@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
+import 'cv_pdf.dart';
 class JobsPage extends StatefulWidget {
   const JobsPage({super.key});
 
@@ -319,7 +319,12 @@ class _JobsPageState extends State<JobsPage> {
         ),
       );
       if (pdfBytes != null) {
-        _viewPDF(pdfBytes!);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PdfViewerPage(pdfBytes: pdfBytes!),
+          ),
+        );
       }
     } else {
       print('Failed to generate CV ${response.statusCode}');
