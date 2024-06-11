@@ -489,6 +489,8 @@ class _SecondPageState extends State<SecondPage> with SingleTickerProviderStateM
   final List<String> _jobTypes = ["CS", "ME", "EE"];
 
   Future<void> _fetchJobs(String jobType) async {
+    // final response = await http.post(Uri.parse(
+    //     "https://projectflaskserver.pythonanywhere.com/get_jobs?job_type=$jobType")); // Replace with your actual API endpoint
     final response = await http.post(Uri.parse(
         "http://127.0.0.1:5000/get_jobs?job_type=$jobType")); // Replace with your actual API endpoint
     if (response.statusCode == 200) {

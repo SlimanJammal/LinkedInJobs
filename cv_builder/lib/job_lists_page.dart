@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 // import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
 import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class JobsPage extends StatefulWidget {
   const JobsPage({super.key});
@@ -27,8 +31,52 @@ class PDFViewPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('View CV'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: () async {
+              // 1. Get the existing file path
+              final filePath = path; // Assuming 'path' variable holds the existing file path
+
+              // 2. Get file name from existing path (optional)
+              final fileName = filePath.split('/').last; // Get last segment (filename)
+
+              // 3. Open file picker for saving
+              final result = await FilePicker.platform.saveFile(
+                dialogTitle: 'Save File',
+                initialDirectory: fileName, // Pre-fill with original filename (optional)
+              );
+
+              if (result != null) {
+                // 4. Access the chosen path correctly
+                final newSavePath = result; // Access the path directly
+
+                await File(filePath).copy(newSavePath);
+
+                // 5. Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('File saved successfully!'),
+                  ),
+                );
+              } else {
+                // 6. User canceled or error (optional)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('File saving cancelled.'),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: SfPdfViewer.file(File(path)),
+
     );
   }
 }
@@ -277,19 +325,6 @@ class _JobsPageState extends State<JobsPage> {
       print('Failed to generate CV ${response.statusCode}');
     }
 
-
-
-        // setState(() {
-        //   pdfBytes = response.bodyBytes as Uint8List?;
-        // });
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('CV generated successfully!'),
-        //   ),
-        // );
-        // await saveCV();
-
-
   }
 
 
@@ -311,15 +346,15 @@ class _JobsPageState extends State<JobsPage> {
       drawer: Drawer(backgroundColor: Colors.blue),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            title: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.code)),
-                Tab(icon: Icon(Icons.add_chart_sharp)),
-                Tab(icon: Icon(Icons.accessibility)),
-              ],
-            ),
-          ),
+          // SliverAppBar(
+            // title: TabBar(
+            //   tabs: [
+            //     Tab(icon: Icon(Icons.code)),
+            //     Tab(icon: Icon(Icons.add_chart_sharp)),
+            //     Tab(icon: Icon(Icons.accessibility)),
+            //   ],
+            // ),
+          // ),
         ],
         body: SingleChildScrollView(
           child: Padding(
