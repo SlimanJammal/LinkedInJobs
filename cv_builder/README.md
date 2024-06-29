@@ -1,16 +1,71 @@
-# cv_builder
+# Web App Setup Guide
 
-A new Flutter project.
+This guide will walk you through the steps to set up the web app on your local machine. 
 
-## Getting Started
+## Prerequisites
 
-This project is a starting point for a Flutter application.
+Before you begin, ensure you have the following installed on your machine:
 
-A few resources to get you started if this is your first Flutter project:
+- [Git](https://git-scm.com/downloads)
+- [VS Code](https://code.visualstudio.com/download)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Step 1: Clone the GitHub Repository
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**if you already cloned the main repositry you can skip this step**
+
+First, you need to clone the repository to your local machine. Open your terminal and run the following command:
+
+```bash
+git clone https://github.com/SlimanJammal/LinkedInJobs.git
+```
+
+
+## Step 2: Install Flutter
+Next, you need to install Flutter. Follow the instructions based on your operating system:
+
+### <u>macOS</u>
+follow this [Link](https://docs.flutter.dev/get-started/install/macos/web)
+
+#### or
+Open your terminal and run:
+
+```bash
+brew install --cask flutter
+```
+
+Add Flutter to your path:
+```bash
+
+export PATH="$PATH:`flutter/bin`"
+```
+### <u>Windows</u>
+follow this [Link](https://docs.flutter.dev/get-started/install/windows/web)
+
+#### or
+Download the Flutter SDK from Flutter's website.
+Extract the zip file and place the contained flutter directory in a desired installation location.
+Add the Flutter bin directory to your system path.
+### <u>Linux</u>
+follow this [Link](https://docs.flutter.dev/get-started/install/linux/web)
+## Step 3: Install Flutter Dependencies
+Navigate to the project directory (/cv_builder) and run the following command to get the required dependencies:
+
+``` bash
+cd LinkedInJobs/cv_builder
+flutter pub get
+```
+
+### Step 4: Open the Project in VS Code
+Open VS Code.
+Go to File > Open Folder... and select the project directory.
+
+**Ensure you have the Flutter and Dart extensions installed in VS Code.**
+
+You can install them from the Extensions view (Ctrl+Shift+X or Cmd+Shift+X).
+
+## Step 5: Run the App
+You can now run the app using VS Code:
+
+Open the command palette (Ctrl+Shift+P or Cmd+Shift+P).
+Type Flutter: Select Device and choose your preferred device (e.g., Chrome for web).
+Press F5 to start debugging the app.
