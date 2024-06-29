@@ -55,8 +55,8 @@ No specific system requirements.
 #### 1. Clone the repository <a name="1-clone-the-repository"></a>
 
 ```bash
-git clone <repository-url>
-cd project-root
+git clone https://github.com/SlimanJammal/LinkedInJobs.git
+cd LinkedInJobs
 ```
 
 #### 2. Set up a virtual environment <a name="2-set-up-a-virtual-environment"></a>
@@ -116,9 +116,7 @@ python main.py CS
 
 2) **Start the web application to view job listings and generate CVs.**
 
-```bash
-some code here
-```
+**to start the web appliction follow the instructions inside /cv_builder/README.md**
 
 #### 7. Development Setup <a name="7-development-setup"></a>
 
