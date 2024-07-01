@@ -1,5 +1,7 @@
 # LinkedIn Jobs
 
+**This project was done under the  supervision of Prof. Roi Poranne as part of a semester project for a BSc in computer science at the University of Haifa.**
+
 ## Table of Contents
 
 1. [Description](#description)
@@ -135,3 +137,7 @@ python main.py CS
 ### Contact Information <a name="contact-information"></a>
 
 For support or questions, please contact [Muhammad Eid](https://github.com/Mohammad-Eid) / [Sliman Jammal](https://github.com/SlimanJammal).
+
+
+
+
