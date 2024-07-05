@@ -54,10 +54,20 @@ No specific system requirements.
 
 #### Step-by-Step Guide <a name="step-by-step-guide"></a>
 
-#### 1. Clone the repository <a name="1-clone-the-repository"></a>
+#### Prerequisites
 
+Before you begin, ensure you have the following installed on your machine:
+
+- [Git](https://git-scm.com/downloads)
+- [VS Code](https://code.visualstudio.com/download)
+- [Python](https://www.python.org/downloads/)
+- [MySql](https://www.mysql.com/downloads/)
+
+#### 1. Clone the repository <a name="1-clone-the-repository"></a>
+in your terminal / cmd navigate to the folder you want to clone into and do the following steps :
 ```bash
 git clone https://github.com/SlimanJammal/LinkedInJobs.git
+
 cd LinkedInJobs
 ```
 
@@ -65,7 +75,14 @@ cd LinkedInJobs
 
 ```bash
 python -m venv venv
-source venv/bin/activate # On Windows use `venv\Scripts\activate`
+```
+on unix/linux based machines :
+```
+source venv/bin/activate 
+```
+on windows :
+```
+venv\Scripts\activate
 ```
 
 #### 3. Install dependencies <a name="3-install-dependencies"></a>
@@ -74,18 +91,19 @@ source venv/bin/activate # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-#### 4. Set up the MySQL database <a name="4-set-up-the-mysql-database"></a>
+#### 4. Set up a MySQL database <a name="4-set-up-the-mysql-database"></a>
 
+if you don't have Mysql already downloaded you can follow this [tutorial](https://www.youtube.com/watch?v=u96rVINbAUI) or the followin steps:
 - [Install MySQL](https://dev.mysql.com/doc/workbench/en/) if not already installed.
 - Create a new database.
 - Update the database configuration in `credintials.py` with your MySQL credentials.
 
 #### 5. Configuration <a name="5-configuration"></a>
 
-Update the following configurations in `credintials.py`:
+open the `credintials.py` file and update the following (replace the variable values with your information ) :
 
 - MySQL database connection details
-- LinkedIn details
+- LinkedIn details (we highly suggest to use a temporary account not your main one)
 
 Then add your ChatGPT API key to your environment variables, to do that follow step 2 (Set Up API Key) [here](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key).
 
