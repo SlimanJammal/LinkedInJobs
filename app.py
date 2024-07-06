@@ -2,17 +2,19 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import credintials
 import mysql.connector
-# from fpdf import FPDF
 from openai import OpenAI
 import io
 
 import requests
+
 app = Flask(__name__)
 CORS(app)
+
 
 def connect_to_database():
     return mysql.connector.connect(host=credintials.db_host, user=credintials.db_user, password=credintials.db_password,
                                    database=credintials.db_name)
+
 
 @app.route('/get_jobs', methods=['POST'])
 def get_jobs():
@@ -47,7 +49,7 @@ def get_jobs():
             "Years Experience": row[9],  # Number of years experience
             "Degree Type": row[10],  # Degree type
             "Skills": row[11],  # Skills (split into a list)
-            "Needs Experience": row[12].strip().lower() == "yes", # Remote (convert to bool)
+            "Needs Experience": row[12].strip().lower() == "yes",  # Remote (convert to bool)
             "Salary estimate": row[13]
         })
 
@@ -56,13 +58,7 @@ def get_jobs():
     return jsonify(card_list)
 
 
-
-
-
-
-
 '''**************************************** cv generate functions ******************************************** '''
-
 
 
 class CV:
@@ -85,60 +81,58 @@ class CV:
         self.references = references
 
     def get_structure(self):
-        string ='\"'
-        string2 =""
+        string = '\"'
+        string2 = ""
 
-        data = f"# {self.full_name.replace(string,string2)}\n\n"
-        data += f"Email: {self.email.replace(string,string2)} | Phone: {self.phone.replace(string,string2)}\n| "
-        data += f"Address: {self.address.replace(string,string2)}| \n"
-        data += f"LinkedIn: {self.linkedin.replace(string,string2)}\n\n"
-        if self.career_objective != "":
+        data = f"# {self.full_name.replace(string, string2)}\n\n"
+        data += f"Email: {self.email.replace(string, string2)} | Phone: {self.phone.replace(string, string2)}\n| "
+        data += f"Address: {self.address.replace(string, string2)}| \n"
+        data += f"LinkedIn: {self.linkedin.replace(string, string2)}\n\n"
+        if len(self.career_objective) > 10 and self.career_objective != ("\"" + "\"" + "#"):
             data += "## Career Objective\n\n"
-            data += f"{self.career_objective.replace(string,string2)}\n\n"
+            data += f"{self.career_objective.replace(string, string2)}\n\n"
 
-        if len(self.education) != 0:
+        if len(self.education[0]['degree']) != 0:
             data += "## Education\n\n"
             for edu in self.education:
                 data += f"- **{edu['degree']}** in {edu['institution']}, {edu['years']}\n"
                 data += f"  {edu['details']}\n\n"
-        if len(self.work_experience) != 0:
+        if len(self.work_experience[0]['job_title']) != 0:
             data += "## Work Experience\n\n"
             for exp in self.work_experience:
                 data += f"- **{exp['job_title']}** at {exp['company']}, {exp['years']}\n"
                 data += f"  {exp['responsibilities']}\n\n"
-        if len(self.skills) != 0:
+        if len(self.skills) > 10:
             data += "## Skills\n\n"
-            data+= f"- "
+            data += f"- "
 
             for skill in self.skills:
-                skill = skill.replace("[", "").replace("]", "").replace("\"","")
+                skill = skill.replace("[", "").replace("]", "").replace("\"", "")
                 data += skill
                 data += ", "
-            data+= "\n\n"
+            data += "\n\n"
 
-
-
-        if len(self.certifications) != 0:
+        if len(self.certifications[0]['name']) != 0:
             data += "## Certifications\n\n"
             for cert in self.certifications:
                 data += f"- {cert['name']} from {cert['institution']}, {cert['year']}\n"
 
-        if len(self.projects) != 0:
+        if len(self.projects[0]['name']) != 0:
             data += "\n## Projects\n\n"
             for proj in self.projects:
                 data += f"- **{proj['name']}**: {proj['description']}\n"
 
-        if len(self.awards) != 0:
+        if len(self.awards[0]['name']) != 0:
             data += "\n## Awards\n\n"
             for award in self.awards:
                 data += f"- {award['name']} from {award['institution']}, {award['year']}\n"
 
-        if len(self.professional_affiliations) != 0:
+        if len(self.professional_affiliations[0]['role']) != 0:
             data += "\n## Professional Affiliations\n\n"
             for aff in self.professional_affiliations:
                 data += f"- {aff['role']} at {aff['organization']}, {aff['years']}\n"
 
-        if len(self.references) != 0:
+        if self.references and len(self.references[0]['name']) != 0:
             data += "\n## References\n\n"
             for ref in self.references:
                 data += f"- {ref['name']}, {ref['position']} | Contact: {ref['contact']}\n"
@@ -146,11 +140,8 @@ class CV:
         return data
 
 
-
-
 def convert_to_pdf(data):
-
-    Resume_file = "Resume.pdf"
+    Resume_file = "flutter_backend/Resume.pdf"
     engine = "weasyprint"
     # Define CSS styles for the PDF
     cssfile = """
@@ -201,9 +192,6 @@ def convert_to_pdf(data):
         return None
 
 
-
-
-
 def parse_data_string(data_str):
     data_segments = data_str.split("#")
 
@@ -221,6 +209,7 @@ def parse_data_string(data_str):
 
     return parsed_data
 
+
 @app.route('/generate_cv', methods=['POST'])
 def generate_cv():
     data = request.json
@@ -231,7 +220,7 @@ def generate_cv():
     print('Job Description:', job_description)
     print('User Info:', user_info)
 
-    example_response  = """
+    example_response = """
 full_name="John Doe"#
 email="john.doe@example.com"#
 phone="+1234567890"#
@@ -311,24 +300,20 @@ references=[
     msgs = []
     client = OpenAI()
     msg1 = {"role": "user",
-         "content": f"for the next msg Generate a one page CV return fields seperated by a #:"
-                    f"this is an (don't generate for it) example response: {example_response} "
+            "content": f"for the next msg Generate a one page CV return fields seperated by a #:"
+                       f"this is an (don't generate for it) example response: {example_response} "
 
-
-
-
-
-         }
+            }
     msg2 = {"role": "user",
-         "content": f"generate for this using the same structure in the example response. Job Description: {job_description}\n"
-                    f"User Info: {user_info}\n"
-         }
+            "content": f"generate for this using the same structure in the example response. Job Description: {job_description}\n"
+                       f"User Info: {user_info}\n"
+            }
 
     msgs.append(msg1)
     msgs.append(msg2)
     completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=msgs
+        model="gpt-3.5-turbo",
+        messages=msgs
     )
     cv_text = completion.choices[0].message.content
     print(cv_text)
@@ -336,7 +321,7 @@ references=[
     data = parse_data_string(cv_text)
     cv_new = CV(**data)
     pdf_res = convert_to_pdf(cv_new.get_structure())
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("pdf created")
 
     response = make_response(pdf_res)
     response.headers['Content-Type'] = 'application/pdf'
@@ -344,6 +329,7 @@ references=[
 
     return response
     # return jsonify({'cv_pdf': pdf_res})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
