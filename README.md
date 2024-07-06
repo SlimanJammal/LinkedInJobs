@@ -2,6 +2,8 @@
 
 **This project was done under the  supervision of Prof. Roi Poranne as part of a semester project for a BSc in computer science at the University of Haifa.**
 
+**the instructions to install and activate the web app are in cv_builder/README.md**
+
 ## Table of Contents
 
 1. [Description](#description)
