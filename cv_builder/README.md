@@ -54,6 +54,15 @@ Navigate to the project directory (/cv_builder) and run the following command to
 cd LinkedInJobs/cv_builder
 flutter pub get
 ```
+If you get the following error:
+``` bash
+Building with plugins requires symlink support.
+
+Please enable Developer Mode in your system settings. Run
+  start ms-settings:developers
+to open settings.
+```
+follow the steps [here.](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development)
 
 ### Step 4: Open the Project in VS Code
 Open VS Code.
