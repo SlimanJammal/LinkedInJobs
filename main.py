@@ -1,4 +1,5 @@
 import pickle
+import sys
 import database_functions
 import job_search, actions
 from selenium import webdriver
