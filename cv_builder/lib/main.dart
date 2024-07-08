@@ -31,13 +31,13 @@ class StartupPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'main title',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              'Job Finder',
+              style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
             Text(
-              'secondary title',
-              style: TextStyle(fontSize: 24),
+              'By Muhammad & Sliman ',
+              style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 40),
             // ElevatedButton(
